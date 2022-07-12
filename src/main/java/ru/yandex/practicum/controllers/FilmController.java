@@ -51,23 +51,23 @@ public class FilmController {
     private void validation(Film film) {
         String massage = null;
         if(film.getName().isEmpty()) {
-            massage = "название фильма не заполнено";
+            massage = "Ошибка валидации: название фильма не заполнено";
             throw new ValidationException(HttpStatus.BAD_REQUEST, massage);
         }
         if(film.getDescription().length() > 200) {
-            massage = "в описании более 200 символов";
+            massage = "Ошибка валидации: в описании более 200 символов";
             throw new ValidationException(HttpStatus.BAD_REQUEST, massage);
         }
         if(film.getReleaseDate() == null) {
-            massage = "нет даты выхода фильма";
+            massage = "Ошибка валидации: нет даты выхода фильма";
             throw new ValidationException(HttpStatus.BAD_REQUEST, massage);
         }
         if(film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            massage = "дата выхода не может быть до 28.12.1895";
+            massage = "Ошибка валидации: дата выхода не может быть до 28.12.1895";
             throw new ValidationException(HttpStatus.BAD_REQUEST, massage);
         }
         if(film.getDuration() < 0) {
-            massage = "продолжительность фильма должна быть положиттельной";
+            massage = "Ошибка валидации: продолжительность фильма должна быть положительной";
             throw new ValidationException(HttpStatus.BAD_REQUEST, massage);
         }
     }

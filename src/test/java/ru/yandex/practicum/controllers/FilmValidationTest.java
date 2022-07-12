@@ -1,6 +1,6 @@
 /**
- * Класс тестируем проверку ошибок при действиях с фильмами
- * @autor Мартынов Егор
+ * РљР»Р°СЃСЃ С‚РµСЃС‚РёСЂСѓРµС‚ РІР°Р»РёРґР°С†РёСЋ РїРѕСЃС‚СѓРїР°СЋС‰РёС… Р·Р°РїСЂРѕСЃРѕРІ РєР»Р°СЃСЃР° FilmController
+ * @autor РњР°СЂС‚С‹РЅРѕРІ Р•РіРѕСЂ
  * @version 1
  */
 package ru.yandex.practicum.controllers;
@@ -9,27 +9,32 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.SpringApplication;
-import ru.yandex.practicum.FilmorateApplication;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import ru.yandex.practicum.model.Film;
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.*;
 
-
-
+@WebMvcTest
+@AutoConfigureMockMvc
 public class FilmValidationTest {
+    @Autowired
+    private MockMvc mockMvc;
+
     private Film film;
     private Film film2;
     private Film film3;
     private Film film4;
     private Film film5;
     private Film film6;
-    private static HttpClient client = HttpClient.newHttpClient();
+    private Film film7;
+    private Film film8;
     private static Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDate.class, new LocalDateAdapter().nullSafe())
             .create();
@@ -37,7 +42,6 @@ public class FilmValidationTest {
 
     @BeforeEach
     void createTestSpase() {
-        SpringApplication.run(FilmorateApplication.class);
         LocalDate ld = LocalDate.of(2021, 11, 11);
         LocalDate ld2 = LocalDate.of(1640, 11, 11);
         String description200 = "11111111111111111111111111111111111111111111111111111111111111111111111111111111" +
@@ -46,78 +50,87 @@ public class FilmValidationTest {
         String description201 = "11111111111111111111111111111111111111111111111111111111111111111111111111111111" +
                 "1111111111111111111111111111111111111111111111111111" +
                 "111111111111111111111111111111111111111111111111111111111111111111111";
-        film = new Film(1, "", "Фильм об этом и об этом", ld, 70);
-        film2 = new Film(2, "10+7 мгновений весны", "Фильм об этом и об этом", ld, 70);
-        film3 = new Film(3, "10+7 мгновений весны", description200, ld, 70);
-        film4 = new Film(4, "10+7 мгновений весны", description201, ld, 70);
-        film5 = new Film(5, "10+7 мгновений весны", "Фильм об этом и об этом",
+        film = new Film(1, "", "РІРѕС‚ С‚Р°РєРѕР№ РІРѕС‚ С„РёР»СЊРј", ld, 70);
+        film2 = new Film(2, "10+7 РјРіРЅРѕРІРµРЅРёР№ РІРµСЃРЅС‹", "РІРѕС‚ С‚Р°РєРѕР№ РІРѕС‚ С„РёР»СЊРј", ld, 70);
+        film3 = new Film(3, "10+7 РјРіРЅРѕРІРµРЅРёР№ РІРµСЃРЅС‹", description200, ld, 70);
+        film4 = new Film(4, "10+7 РјРіРЅРѕРІРµРЅРёР№ РІРµСЃРЅС‹", description201, ld, 70);
+        film5 = new Film(5, "10+7 РјРіРЅРѕРІРµРЅРёР№ РІРµСЃРЅС‹", "РІРѕС‚ С‚Р°РєРѕР№ РІРѕС‚ С„РёР»СЊРј",
                 null, 70);
-        film6 = new Film(5, "10+7 мгновений весны", "Фильм об этом и об этом",
+        film6 = new Film(5, "10+7 РјРіРЅРѕРІРµРЅРёР№ РІРµСЃРЅС‹", "РІРѕС‚ С‚Р°РєРѕР№ РІРѕС‚ С„РёР»СЊРј",
                 ld2, 70);
+        film7 = new Film(1, "10+7 РјРіРЅРѕРІРµРЅРёР№ РІРµСЃРЅС‹", "РІРѕС‚ С‚Р°РєРѕР№ РІРѕС‚ С„РёР»СЊРј", ld, -70);
+        film8 = new Film(2, "10+7 РјРіРЅРѕРІРµРЅРёР№ РІРµСЃРЅС‹", "РІРѕС‚ С‚Р°РєРѕР№ РІРѕС‚ С„РёР»СЊРј", ld, 80);
 
     }
 
     @Test
-    void validationFilmTest() throws IOException, InterruptedException {
-        /**Ошибка нет имени*/
-        HttpRequest reqFilm = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/" + "api/v1/film"))
-                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(film)))
-                .header("Content-Type", "application/json")
-                .build();
-        HttpResponse<String> response = null;
-        response = client.send(reqFilm, HttpResponse.BodyHandlers.ofString());
-        assertEquals(400, response.statusCode());
+    public void isOkPostAndPatchTest() throws Exception {
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("http://localhost:8080/" + "api/v1/film")
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .content(gson.toJson(film2)))
+                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult response2 = mockMvc.perform(MockMvcRequestBuilders.patch("http://localhost:8080/" + "api/v1/film")
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .content(gson.toJson(film8)))
+                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+    }
 
-        /**Успешный запрос*/
-        reqFilm = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/" + "api/v1/film"))
-                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(film2)))
-                .header("Content-Type", "application/json")
-                .build();
-        response = client.send(reqFilm, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, response.statusCode());
+    @Test
+    public void noNameTest() throws Exception {
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("http://localhost:8080/" + "api/v1/film")
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .content(gson.toJson(film)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
+        String message = response.getResolvedException().getMessage();
+        assertTrue(message.contains("РћС€РёР±РєР° РІР°Р»РёРґР°С†РёРё: РЅР°Р·РІР°РЅРёРµ С„РёР»СЊРјР° РЅРµ Р·Р°РїРѕР»РЅРµРЅРѕ"));
+    }
 
-        /**Нет ошибки 200 символов*/
-        reqFilm = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/" + "api/v1/film"))
-                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(film3)))
-                .header("Content-Type", "application/json")
-                .build();
-        response = client.send(reqFilm, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, response.statusCode());
+    @Test
+    public void description200Test() throws Exception {
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("http://localhost:8080/" + "api/v1/film")
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .content(gson.toJson(film3)))
+                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+    }
 
-        /**Ошибка 201 символ*/
-        reqFilm = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/" + "api/v1/film"))
-                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(film4)))
-                .header("Content-Type", "application/json")
-                .build();
+    @Test
+    public void description201Test() throws Exception {
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("http://localhost:8080/" + "api/v1/film")
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .content(gson.toJson(film4)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
+        String message = response.getResolvedException().getMessage();
+        assertTrue(message.contains("РћС€РёР±РєР° РІР°Р»РёРґР°С†РёРё: РІ РѕРїРёСЃР°РЅРёРё Р±РѕР»РµРµ 200 СЃРёРјРІРѕР»РѕРІ"));
+    }
 
+    @Test
+    public void notReleaseDateTest() throws Exception {
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("http://localhost:8080/" + "api/v1/film")
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .content(gson.toJson(film5)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
+        String message = response.getResolvedException().getMessage();
+        assertTrue(message.contains("РћС€РёР±РєР° РІР°Р»РёРґР°С†РёРё: РЅРµС‚ РґР°С‚С‹ РІС‹С…РѕРґР° С„РёР»СЊРјР°"));
+    }
 
-            response = client.send(reqFilm, HttpResponse.BodyHandlers.ofString());
-            assertEquals(400, response.statusCode());
+    @Test
+    public void wrongReleaseDateTest() throws Exception {
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("http://localhost:8080/" + "api/v1/film")
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .content(gson.toJson(film6)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
+        String message = response.getResolvedException().getMessage();
+        assertTrue(message.contains("РћС€РёР±РєР° РІР°Р»РёРґР°С†РёРё: РґР°С‚Р° РІС‹С…РѕРґР° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РґРѕ 28.12.1895"));
+    }
 
-        /**Ошибка нет даты релиза*/
-        reqFilm = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/" + "api/v1/film"))
-                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(film5)))
-                .header("Content-Type", "application/json")
-                .build();
-
-        response = client.send(reqFilm, HttpResponse.BodyHandlers.ofString());
-        assertEquals(400, response.statusCode());
-
-
-        /**Ошибка филм до 28 декабря 1895 года*/
-        reqFilm = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/" + "api/v1/film"))
-                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(film6)))
-                .header("Content-Type", "application/json")
-                .build();
-
-        response = client.send(reqFilm, HttpResponse.BodyHandlers.ofString());
-        assertEquals(400, response.statusCode());
+    @Test
+    public void negativeDurationTest() throws Exception {
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("http://localhost:8080/" + "api/v1/film")
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .content(gson.toJson(film7)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
+        String message = response.getResolvedException().getMessage();
+        assertTrue(message.contains("РћС€РёР±РєР° РІР°Р»РёРґР°С†РёРё: РїСЂРѕРґРѕР»Р¶РёС‚РµР»СЊРЅРѕСЃС‚СЊ С„РёР»СЊРјР° РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РїРѕР»РѕР¶РёС‚РµР»СЊРЅРѕР№"));
     }
 
 }
