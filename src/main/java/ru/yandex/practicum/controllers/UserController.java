@@ -6,6 +6,7 @@
 package ru.yandex.practicum.controllers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.exception.ValidationException;
 import ru.yandex.practicum.model.User;
@@ -51,19 +52,19 @@ public class UserController {
 
     private void validation(User user) {
         if(user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ValidationException("дата рождения в будущем");
+            throw new ValidationException(HttpStatus.BAD_REQUEST, "дата рождения в будущем");
         }
         if(user.getEmail().isEmpty()) {
-            throw new ValidationException("нужно заполнить e-mail");
+            throw new ValidationException(HttpStatus.BAD_REQUEST, "нужно заполнить e-mail");
         }
         if(!user.getEmail().contains("@")) {
-            throw new ValidationException("e-mail введен неправильно");
+            throw new ValidationException(HttpStatus.BAD_REQUEST, "e-mail введен неправильно");
         }
         if(user.getLogin().isEmpty()) {
-            throw new ValidationException("нужно заполнить логин");
+            throw new ValidationException(HttpStatus.BAD_REQUEST, "нужно заполнить логин");
         }
         if(user.getLogin().contains(" ")) {
-            throw new ValidationException("в логине нельзя использовать пробелы");
+            throw new ValidationException(HttpStatus.BAD_REQUEST, "в логине нельзя использовать пробелы");
         }
     }
 }

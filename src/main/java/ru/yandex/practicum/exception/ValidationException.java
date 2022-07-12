@@ -6,13 +6,14 @@
 package ru.yandex.practicum.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
-public class ValidationException extends RuntimeException {
+public class ValidationException extends ResponseStatusException {
 
-    public ValidationException(final String message) {
-        log.info("Ошибка валидации: " + message + ".");
-        System.out.println("Ошибка валидации: " + message + ".");
+    public ValidationException(HttpStatus status, String massage) {
+        super(status, massage);
     }
 
 }

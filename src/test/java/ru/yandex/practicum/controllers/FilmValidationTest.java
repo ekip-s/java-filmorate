@@ -7,14 +7,10 @@ package ru.yandex.practicum.controllers;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.SpringApplication;
 import ru.yandex.practicum.FilmorateApplication;
-import ru.yandex.practicum.exception.ValidationException;
 import ru.yandex.practicum.model.Film;
 import java.io.IOException;
 import java.net.URI;
@@ -62,22 +58,16 @@ public class FilmValidationTest {
     }
 
     @Test
-    void validationFilmTest() {
+    void validationFilmTest() throws IOException, InterruptedException {
         /**Ошибка нет имени*/
         HttpRequest reqFilm = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:8080/" + "api/v1/film"))
                 .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(film)))
                 .header("Content-Type", "application/json")
                 .build();
-
         HttpResponse<String> response = null;
-
-        try {
-            response = client.send(reqFilm, HttpResponse.BodyHandlers.ofString());
-            assertEquals(500, response.statusCode());
-        } catch (IOException | InterruptedException | ValidationException e) {
-
-        }
+        response = client.send(reqFilm, HttpResponse.BodyHandlers.ofString());
+        assertEquals(400, response.statusCode());
 
         /**Успешный запрос*/
         reqFilm = HttpRequest.newBuilder()
@@ -85,13 +75,8 @@ public class FilmValidationTest {
                 .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(film2)))
                 .header("Content-Type", "application/json")
                 .build();
-
-        try {
-            response = client.send(reqFilm, HttpResponse.BodyHandlers.ofString());
-            assertEquals(200, response.statusCode());
-        } catch (IOException | InterruptedException | ValidationException e) {
-
-        }
+        response = client.send(reqFilm, HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode());
 
         /**Нет ошибки 200 символов*/
         reqFilm = HttpRequest.newBuilder()
@@ -99,13 +84,8 @@ public class FilmValidationTest {
                 .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(film3)))
                 .header("Content-Type", "application/json")
                 .build();
-
-        try {
-            response = client.send(reqFilm, HttpResponse.BodyHandlers.ofString());
-            assertEquals(200, response.statusCode());
-        } catch (IOException | InterruptedException | ValidationException e) {
-
-        }
+        response = client.send(reqFilm, HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode());
 
         /**Ошибка 201 символ*/
         reqFilm = HttpRequest.newBuilder()
@@ -114,12 +94,9 @@ public class FilmValidationTest {
                 .header("Content-Type", "application/json")
                 .build();
 
-        try {
-            response = client.send(reqFilm, HttpResponse.BodyHandlers.ofString());
-            assertEquals(500, response.statusCode());
-        } catch (IOException | InterruptedException | ValidationException e) {
 
-        }
+            response = client.send(reqFilm, HttpResponse.BodyHandlers.ofString());
+            assertEquals(400, response.statusCode());
 
         /**Ошибка нет даты релиза*/
         reqFilm = HttpRequest.newBuilder()
@@ -128,12 +105,9 @@ public class FilmValidationTest {
                 .header("Content-Type", "application/json")
                 .build();
 
-        try {
-            response = client.send(reqFilm, HttpResponse.BodyHandlers.ofString());
-            assertEquals(500, response.statusCode());
-        } catch (IOException | InterruptedException | ValidationException e) {
+        response = client.send(reqFilm, HttpResponse.BodyHandlers.ofString());
+        assertEquals(400, response.statusCode());
 
-        }
 
         /**Ошибка филм до 28 декабря 1895 года*/
         reqFilm = HttpRequest.newBuilder()
@@ -142,27 +116,8 @@ public class FilmValidationTest {
                 .header("Content-Type", "application/json")
                 .build();
 
-        try {
-            response = client.send(reqFilm, HttpResponse.BodyHandlers.ofString());
-            assertEquals(500, response.statusCode());
-        } catch (IOException | InterruptedException | ValidationException e) {
-
-        }
-
-
+        response = client.send(reqFilm, HttpResponse.BodyHandlers.ofString());
+        assertEquals(400, response.statusCode());
     }
-
-
-    public static class LocalDateAdapter extends TypeAdapter<LocalDate> {
-        @Override
-        public void write(JsonWriter jsonWriter, LocalDate localDate) throws IOException {
-            jsonWriter.value(localDate.toString());
-        }
-        @Override
-        public LocalDate read(JsonReader jsonReader) throws IOException {
-            return LocalDate.parse(jsonReader.nextString());
-        }
-    }
-
 
 }
