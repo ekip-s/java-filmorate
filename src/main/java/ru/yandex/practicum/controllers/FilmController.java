@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.exception.ValidationException;
 import ru.yandex.practicum.model.Film;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,28 +24,30 @@ public class FilmController {
     protected Map<Long, Film> filmStorage = new HashMap<>();
 
     @PostMapping
-    public void create(@RequestBody Film film) {
+    public Film create(@RequestBody Film film) {
         validation(film);
         long id = generateFilmId();
         film.setId(id);
         filmStorage.put(id, film);
         log.info("Получен POST запрос к эндпоинту: '/films', Строка параметров запроса: " + film.toString());
+        return film;
     }
 
 
     @PutMapping
-    public void update(@RequestBody Film film) {
+    public Film update(@RequestBody Film film) {
         if(film.getId() == 0 || !filmStorage.containsKey(film.getId())) {
             throw new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR, "Такого фильма нет или id не передан.");
         }
         validation(film);
         filmStorage.put(film.getId(), film);
         log.info("Получен PUT запрос к эндпоинту: '/films', Строка параметров запроса: " + film.toString());
+        return film;
     }
 
     @GetMapping
-    public Map<Long, Film> get() {
-        return filmStorage;
+    public ArrayList<Film> get() {
+        return getDataList();
     }
 
     private long generateFilmId() {
@@ -73,5 +76,13 @@ public class FilmController {
             massage = "Ошибка валидации: продолжительность фильма должна быть положительной";
             throw new ValidationException(HttpStatus.BAD_REQUEST, massage);
         }
+    }
+
+    private ArrayList<Film>  getDataList() {
+        ArrayList<Film> filmList = new ArrayList<>();
+        for(Film film: filmStorage.values()) {
+            filmList.add(film);
+        }
+        return filmList;
     }
 }

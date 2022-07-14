@@ -32,6 +32,7 @@ public class UserValidationTest {
     private User user4;
     private User user5;
     private User user6;
+    private User user7;
     private static Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDate.class, new LocalDateAdapter().nullSafe())
             .create();
@@ -49,11 +50,12 @@ public class UserValidationTest {
         user4 = new User(4, "мыломыло.мыло", "логин", "имя", ld);
         user5 = new User(5, "мыло@мыло.мыло", "", "имя", ld);
         user6 = new User(6, "мыло@мыло.мыло", "логин логин", "имя", ld);
+        user7 = new User(-154, "мыло@мыло.мыло", "логин логин", "имя", ld);
 
     }
 
     @Test
-    public void isOkPostAndPatchTest() throws Exception {
+    public void isOkPostAndPutTest() throws Exception {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post(address)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(gson.toJson(user)))
@@ -113,4 +115,16 @@ public class UserValidationTest {
         String message = response.getResolvedException().getMessage();
         assertTrue(message.contains("Ошибка валидации: в логине нельзя использовать пробелы"));
     }
+
+    @Test
+    public void badIdTest() throws Exception {
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.put(address)
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .content(gson.toJson(user7)))
+                .andExpect(MockMvcResultMatchers.status().isInternalServerError()).andReturn();
+        String message = response.getResolvedException().getMessage();
+        assertTrue(message.contains("Такого пользовалеоя нет или id не передан."));
+    }
+
+
 }

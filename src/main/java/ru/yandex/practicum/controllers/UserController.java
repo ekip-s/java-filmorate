@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.exception.ValidationException;
 import ru.yandex.practicum.model.User;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,27 +25,29 @@ public class UserController {
 
 
     @PostMapping
-    public void create(@RequestBody User user) {
+    public User create(@RequestBody User user) {
         validation(user);
         long id = generateUserId();
         user.setId(id);
         userStorage.put(id, user);
         log.info("Получен POST запрос к эндпоинту: '/users', Строка параметров запроса: " + user.toString());
+        return user;
     }
 
     @PutMapping
-    public void update(@RequestBody User user) {
+    public User update(@RequestBody User user) {
         if(user.getId() == 0 || !userStorage.containsKey(user.getId())) {
             throw new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR, "Такого пользовалеоя нет или id не передан.");
         }
         validation(user);
         userStorage.put(user.getId(), user);
         log.info("Получен PUT запрос к эндпоинту: '/users', Строка параметров запроса: " + user.toString());
+        return user;
     }
 
     @GetMapping
-    public Map<Long, User> get() {
-        return userStorage;
+    public ArrayList<User> get() {
+        return getDataList();
     }
 
     private long generateUserId() {
@@ -53,6 +56,9 @@ public class UserController {
     }
 
     private void validation(User user) {
+        if(user.getName() == null || user.getName().equals("")) {
+            user.setName(user.getLogin());
+        }
         if(user.getBirthday().isAfter(LocalDate.now())) {
             throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошибка валидации: дата рождения в будущем");
         }
@@ -68,5 +74,13 @@ public class UserController {
         if(user.getLogin().contains(" ")) {
             throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошибка валидации: в логине нельзя использовать пробелы");
         }
+    }
+
+    private ArrayList<User> getDataList() {
+        ArrayList<User> userList = new ArrayList<>();
+        for(User user: userStorage.values()) {
+            userList.add(user);
+        }
+        return userList;
     }
 }

@@ -36,6 +36,7 @@ public class FilmValidationTest {
     private Film film6;
     private Film film7;
     private Film film8;
+    private Film film9;
     private static Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDate.class, new LocalDateAdapter().nullSafe())
             .create();
@@ -60,12 +61,13 @@ public class FilmValidationTest {
         film6 = new Film(5, "10+7 мгновений весны", "вот такой вот фильм",
                 ld2, 70);
         film7 = new Film(1, "10+7 мгновений весны", "вот такой вот фильм", ld, -70);
-        film8 = new Film(2, "10+7 мгновений весны", "вот такой вот фильм", ld, 80);
+        film8 = new Film(1, "10+7 мгновений весны", "вот такой вот фильм", ld, 80);
+        film9 = new Film(-42, "10+7 мгновений весны", "вот такой вот фильм", ld, 80);
 
     }
 
     @Test
-    public void isOkPostAndPatchTest() throws Exception {
+    public void isOkPostAndPutTest() throws Exception {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post(address)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(gson.toJson(film2)))
@@ -132,6 +134,16 @@ public class FilmValidationTest {
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
         String message = response.getResolvedException().getMessage();
         assertTrue(message.contains("Ошибка валидации: продолжительность фильма должна быть положительной"));
+    }
+
+    @Test
+    public void badIdTest() throws Exception {
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.put(address)
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .content(gson.toJson(film9)))
+                .andExpect(MockMvcResultMatchers.status().isInternalServerError()).andReturn();
+        String message = response.getResolvedException().getMessage();
+        assertTrue(message.contains("Такого фильма нет или id не передан."));
     }
 
 }
