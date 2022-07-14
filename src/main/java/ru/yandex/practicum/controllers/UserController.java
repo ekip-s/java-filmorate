@@ -34,6 +34,9 @@ public class UserController {
 
     @PutMapping
     public void update(@RequestBody User user) {
+        if(user.getId() == 0 || !userStorage.containsKey(user.getId())) {
+            throw new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR, "Такого пользовалеоя нет или id не передан.");
+        }
         validation(user);
         userStorage.put(user.getId(), user);
         log.info("Получен PUT запрос к эндпоинту: '/users', Строка параметров запроса: " + user.toString());

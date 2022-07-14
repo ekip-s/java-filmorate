@@ -34,6 +34,9 @@ public class FilmController {
 
     @PutMapping
     public void update(@RequestBody Film film) {
+        if(film.getId() == 0 || !filmStorage.containsKey(film.getId())) {
+            throw new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR, "Такого фильма нет или id не передан.");
+        }
         validation(film);
         filmStorage.put(film.getId(), film);
         log.info("Получен PUT запрос к эндпоинту: '/films', Строка параметров запроса: " + film.toString());
