@@ -10,14 +10,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.exception.ValidationException;
 import ru.yandex.practicum.model.User;
-
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/user")
+@RequestMapping("/users")
 public class UserController {
     static private long userId;
 
@@ -30,14 +29,14 @@ public class UserController {
         long id = generateUserId();
         user.setId(id);
         userStorage.put(id, user);
-        log.info("Получен POST запрос к эндпоинту: '/api/v1/user', Строка параметров запроса: " + user.toString());
+        log.info("Получен POST запрос к эндпоинту: '/users', Строка параметров запроса: " + user.toString());
     }
 
     @PatchMapping
     public void update(@RequestBody User user) {
         validation(user);
         userStorage.put(user.getId(), user);
-        log.info("Получен PATCH запрос к эндпоинту: '/api/v1/user', Строка параметров запроса: " + user.toString());
+        log.info("Получен PATCH запрос к эндпоинту: '/users', Строка параметров запроса: " + user.toString());
     }
 
     @GetMapping

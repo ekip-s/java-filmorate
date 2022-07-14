@@ -10,7 +10,6 @@ import com.google.gson.GsonBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -18,7 +17,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import ru.yandex.practicum.FilmorateApplication;
 import ru.yandex.practicum.model.User;
 import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -37,6 +35,7 @@ public class UserValidationTest {
     private static Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDate.class, new LocalDateAdapter().nullSafe())
             .create();
+    String address = "http://localhost:8080/users";
 
 
     @BeforeEach
@@ -46,7 +45,7 @@ public class UserValidationTest {
 
         user = new User(1, "мыло@мыло.мыло", "логин", "имя", ld);
         user2 = new User(2, "мыло@мыло.мыло", "логин", "имя", ld2);
-        user3 = new User(3, "", "логин", "���", ld);
+        user3 = new User(3, "", "логин", "имя", ld);
         user4 = new User(4, "мыломыло.мыло", "логин", "имя", ld);
         user5 = new User(5, "мыло@мыло.мыло", "", "имя", ld);
         user6 = new User(6, "мыло@мыло.мыло", "логин логин", "имя", ld);
@@ -55,11 +54,11 @@ public class UserValidationTest {
 
     @Test
     public void isOkPostAndPatchTest() throws Exception {
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("http://localhost:8080/" + "api/v1/user")
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post(address)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(gson.toJson(user)))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        MvcResult response2 = mockMvc.perform(MockMvcRequestBuilders.patch("http://localhost:8080/" + "api/v1/user")
+        MvcResult response2 = mockMvc.perform(MockMvcRequestBuilders.patch(address)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(gson.toJson(user)))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -67,7 +66,7 @@ public class UserValidationTest {
 
     @Test
     public void dateInFutureTest() throws Exception {
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("http://localhost:8080/" + "api/v1/user")
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post(address)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(gson.toJson(user2)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
@@ -77,7 +76,7 @@ public class UserValidationTest {
 
     @Test
     public void noEmailTest() throws Exception {
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("http://localhost:8080/" + "api/v1/user")
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post(address)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(gson.toJson(user3)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
@@ -87,7 +86,7 @@ public class UserValidationTest {
 
     @Test
     public void noValidEmailTest() throws Exception {
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("http://localhost:8080/" + "api/v1/user")
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post(address)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(gson.toJson(user4)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
@@ -97,7 +96,7 @@ public class UserValidationTest {
 
     @Test
     public void noLoginTest() throws Exception {
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("http://localhost:8080/" + "api/v1/user")
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post(address)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(gson.toJson(user5)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
@@ -107,7 +106,7 @@ public class UserValidationTest {
 
     @Test
     public void spacesInLoginTest() throws Exception {
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("http://localhost:8080/" + "api/v1/user")
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post(address)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(gson.toJson(user6)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();

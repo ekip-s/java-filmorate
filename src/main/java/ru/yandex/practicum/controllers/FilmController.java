@@ -16,7 +16,7 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/film")
+@RequestMapping("/films")
 public class FilmController {
     static private long filmId;
 
@@ -28,7 +28,7 @@ public class FilmController {
         long id = generateFilmId();
         film.setId(id);
         filmStorage.put(id, film);
-        log.info("Получен POST запрос к эндпоинту: '/api/v1/film', Строка параметров запроса: " + film.toString());
+        log.info("Получен POST запрос к эндпоинту: '/films', Строка параметров запроса: " + film.toString());
     }
 
 
@@ -36,7 +36,7 @@ public class FilmController {
     public void update(@RequestBody Film film) {
         validation(film);
         filmStorage.put(film.getId(), film);
-        log.info("Получен PATCH запрос к эндпоинту: '/api/v1/film', Строка параметров запроса: " + film.toString());
+        log.info("Получен PATCH запрос к эндпоинту: '/films', Строка параметров запроса: " + film.toString());
     }
 
     @GetMapping

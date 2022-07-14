@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class FilmValidationTest {
     @Autowired
     private MockMvc mockMvc;
+    String address = "http://localhost:8080/films";
 
     private Film film;
     private Film film2;
@@ -65,11 +66,11 @@ public class FilmValidationTest {
 
     @Test
     public void isOkPostAndPatchTest() throws Exception {
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("http://localhost:8080/" + "api/v1/film")
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post(address)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(gson.toJson(film2)))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        MvcResult response2 = mockMvc.perform(MockMvcRequestBuilders.patch("http://localhost:8080/" + "api/v1/film")
+        MvcResult response2 = mockMvc.perform(MockMvcRequestBuilders.patch(address)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(gson.toJson(film8)))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -77,7 +78,7 @@ public class FilmValidationTest {
 
     @Test
     public void noNameTest() throws Exception {
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("http://localhost:8080/" + "api/v1/film")
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post(address)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(gson.toJson(film)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
@@ -87,7 +88,7 @@ public class FilmValidationTest {
 
     @Test
     public void description200Test() throws Exception {
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("http://localhost:8080/" + "api/v1/film")
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post(address)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(gson.toJson(film3)))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -95,7 +96,7 @@ public class FilmValidationTest {
 
     @Test
     public void description201Test() throws Exception {
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("http://localhost:8080/" + "api/v1/film")
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post(address)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(gson.toJson(film4)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
@@ -105,7 +106,7 @@ public class FilmValidationTest {
 
     @Test
     public void notReleaseDateTest() throws Exception {
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("http://localhost:8080/" + "api/v1/film")
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post(address)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(gson.toJson(film5)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
@@ -115,7 +116,7 @@ public class FilmValidationTest {
 
     @Test
     public void wrongReleaseDateTest() throws Exception {
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("http://localhost:8080/" + "api/v1/film")
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post(address)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(gson.toJson(film6)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
@@ -125,7 +126,7 @@ public class FilmValidationTest {
 
     @Test
     public void negativeDurationTest() throws Exception {
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("http://localhost:8080/" + "api/v1/film")
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post(address)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(gson.toJson(film7)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
