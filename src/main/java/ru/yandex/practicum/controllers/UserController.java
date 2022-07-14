@@ -32,11 +32,11 @@ public class UserController {
         log.info("Получен POST запрос к эндпоинту: '/users', Строка параметров запроса: " + user.toString());
     }
 
-    @PatchMapping
+    @PutMapping
     public void update(@RequestBody User user) {
         validation(user);
         userStorage.put(user.getId(), user);
-        log.info("Получен PATCH запрос к эндпоинту: '/users', Строка параметров запроса: " + user.toString());
+        log.info("Получен PUT запрос к эндпоинту: '/users', Строка параметров запроса: " + user.toString());
     }
 
     @GetMapping

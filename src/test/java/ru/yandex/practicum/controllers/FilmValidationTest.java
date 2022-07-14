@@ -70,7 +70,7 @@ public class FilmValidationTest {
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(gson.toJson(film2)))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        MvcResult response2 = mockMvc.perform(MockMvcRequestBuilders.patch(address)
+        MvcResult response2 = mockMvc.perform(MockMvcRequestBuilders.put(address)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(gson.toJson(film8)))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();

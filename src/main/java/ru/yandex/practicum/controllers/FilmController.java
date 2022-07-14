@@ -32,11 +32,11 @@ public class FilmController {
     }
 
 
-    @PatchMapping
+    @PutMapping
     public void update(@RequestBody Film film) {
         validation(film);
         filmStorage.put(film.getId(), film);
-        log.info("Получен PATCH запрос к эндпоинту: '/films', Строка параметров запроса: " + film.toString());
+        log.info("Получен PUT запрос к эндпоинту: '/films', Строка параметров запроса: " + film.toString());
     }
 
     @GetMapping

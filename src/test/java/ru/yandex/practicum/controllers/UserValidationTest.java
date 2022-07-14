@@ -58,7 +58,7 @@ public class UserValidationTest {
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(gson.toJson(user)))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        MvcResult response2 = mockMvc.perform(MockMvcRequestBuilders.patch(address)
+        MvcResult response2 = mockMvc.perform(MockMvcRequestBuilders.put(address)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(gson.toJson(user)))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
