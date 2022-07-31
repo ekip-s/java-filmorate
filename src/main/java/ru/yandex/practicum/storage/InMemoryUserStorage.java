@@ -1,6 +1,7 @@
 package ru.yandex.practicum.storage;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 import ru.yandex.practicum.exception.ValidationException;
 import ru.yandex.practicum.model.User;
 import java.time.LocalDate;
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+@Component
 public class InMemoryUserStorage implements UserStorage {
 
     static private long userId;
@@ -22,12 +24,22 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     public User updateUser(User user) {
-        if(user.getId() == 0 || !userStorage.containsKey(user.getId())) {
-            throw new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR, "Такого пользовалеоя нет или id не передан.");
+        if(user.getId() <= 0 || !userStorage.containsKey(user.getId())) {
+            throw new ValidationException(HttpStatus.NOT_FOUND, "Такого пользовалеоя нет или id не передан.");
         }
         validation(user);
         userStorage.put(user.getId(), user);
         return user;
+    }
+
+    public User getUserBuId(Long id) {
+        if(userStorage.isEmpty()) {
+            throw new ValidationException(HttpStatus.NOT_FOUND, "Такого пользовалеоя нет или id передан неверно");
+        }
+        if(!userStorage.containsKey(id)) {
+            throw new ValidationException(HttpStatus.NOT_FOUND, "Такого пользовалеоя нет или id передан неверно");
+        }
+        return userStorage.get(id);
     }
 
     private void validation(User user) {
@@ -59,8 +71,14 @@ public class InMemoryUserStorage implements UserStorage {
         return userList;
     }
 
+    public Map<Long, User> getUsersMap() {
+        return userStorage;
+    }
+
     private long generateUserId() {
         userId = userId + 1;
         return userId;
     }
+
+
 }

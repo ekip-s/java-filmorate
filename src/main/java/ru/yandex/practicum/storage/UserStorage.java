@@ -3,6 +3,7 @@ package ru.yandex.practicum.storage;
 import ru.yandex.practicum.model.User;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public interface UserStorage {
 
@@ -11,4 +12,8 @@ public interface UserStorage {
     User updateUser(User user);
 
     ArrayList<User> getUsers();
+
+    Map<Long, User> getUsersMap();
+
+    User getUserBuId(Long id);
 }
