@@ -31,7 +31,6 @@ public class Film implements Comparable<Film>{
         this.duration = duration;
         this.rate = rateControl();
     }
-
     public boolean addLike(long userId) {
         return likeList.add(userId);
     }
