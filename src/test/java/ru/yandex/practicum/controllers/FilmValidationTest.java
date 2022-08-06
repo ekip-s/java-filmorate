@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -141,7 +142,7 @@ public class FilmValidationTest {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.put(address)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(gson.toJson(film9)))
-                .andExpect(MockMvcResultMatchers.status().isInternalServerError()).andReturn();
+                .andExpect(MockMvcResultMatchers.status().isNotFound()).andReturn();
         String message = response.getResolvedException().getMessage();
         assertTrue(message.contains("Такого фильма нет или id не передан."));
     }

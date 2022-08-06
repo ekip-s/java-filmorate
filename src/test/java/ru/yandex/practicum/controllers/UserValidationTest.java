@@ -121,7 +121,7 @@ public class UserValidationTest {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.put(address)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(gson.toJson(user7)))
-                .andExpect(MockMvcResultMatchers.status().isInternalServerError()).andReturn();
+                .andExpect(MockMvcResultMatchers.status().isNotFound()).andReturn();
         String message = response.getResolvedException().getMessage();
         assertTrue(message.contains("Такого пользовалеоя нет или id не передан."));
     }
