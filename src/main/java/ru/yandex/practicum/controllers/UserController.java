@@ -8,46 +8,42 @@ package ru.yandex.practicum.controllers;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.model.Film;
 import ru.yandex.practicum.model.User;
 import ru.yandex.practicum.service.UserService;
-import ru.yandex.practicum.storage.UserStorage;
-import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
-    UserStorage userStorage;
-    UserService userService;
+    private UserService userService;
 
     @Autowired
-    UserController(UserStorage userStorage, UserService userService) {
-        this.userStorage = userStorage;
+    UserController(UserService userService) {
         this.userService = userService;
     }
 
     @PostMapping
     public User create(@RequestBody User user) {
         log.info("Получен POST запрос к эндпоинту: '/users', Строка параметров запроса: " + user.toString());
-        return userStorage.createUser(user);
+        return userService.createUser(user);
     }
 
     @PutMapping
     public User update(@RequestBody User user) {
         log.info("Получен PUT запрос к эндпоинту: '/users', Строка параметров запроса: " + user.toString());
-        return userStorage.updateUser(user);
+        return userService.updateUser(user);
     }
 
     @GetMapping
-    public ArrayList<User> get() {
-        return userStorage.getUsers();
+    public List<User> get() {
+        return userService.getUsers();
     }
 
     @GetMapping(value = "/{id}")
     public User getUserBuId(@PathVariable Long id) {
-        return userStorage.getUserBuId(id);
+        return userService.getUserById(id);
     }
 
     @PutMapping(value = "/{id}/friends/{friendId}")
@@ -61,12 +57,12 @@ public class UserController {
     }
 
     @GetMapping(value = "/{id}/friends")
-    public ArrayList<User> getFriends(@PathVariable Long id) {
+    public List<User> getFriends(@PathVariable Long id) {
         return userService.friendList(id);
     }
 
     @GetMapping(value = "/{id}/friends/common/{otherId}")
-    public ArrayList<User> commonFriends(@PathVariable Long id,@PathVariable Long otherId) {
+    public List<User> commonFriends(@PathVariable Long id,@PathVariable Long otherId) {
         return userService.mutualFriends(id, otherId);
     }
 

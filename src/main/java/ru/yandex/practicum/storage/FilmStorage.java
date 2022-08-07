@@ -2,21 +2,17 @@ package ru.yandex.practicum.storage;
 
 import ru.yandex.practicum.model.Film;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.TreeSet;
+import java.util.*;
 
 public interface FilmStorage {
     Film addFilm(Film film);
 
     Film updateFilm(Film film);
 
-    ArrayList<Film> getFilms();
+    List<Film> getFilms();
 
-    Film getFilmBuId(long id);
+    Film getFilmById(long id);
 
-    Map<Long, Film> getFilmsMap();
-
-    public TreeSet<Film> getPrioritizedTasks();
+    Map<Long, Film> getFilmStorage();
 
 }

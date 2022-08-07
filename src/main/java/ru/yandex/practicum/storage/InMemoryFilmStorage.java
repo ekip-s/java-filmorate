@@ -4,19 +4,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.exception.ValidationException;
 import ru.yandex.practicum.model.Film;
-
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeSet;
+import java.util.*;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
 
     static private long filmId;
-    protected Map<Long, Film> filmStorage = new HashMap<>();
-    protected TreeSet<Film> prioritizedTasks = new TreeSet<>();
+    private Map<Long, Film> filmStorage = new HashMap<>();
 
     public Film addFilm(Film film) {
         validation(film);
@@ -24,7 +19,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         System.out.println(film);
         film.setId(id);
         filmStorage.put(id, film);
-        prioritizedTasks.add(film);
+        film.rateControl();
         return film;
     }
 
@@ -34,30 +29,27 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
         validation(film);
         filmStorage.put(film.getId(), film);
+        film.rateControl();
         return film;
     }
 
-    public ArrayList<Film> getFilms() {
-        ArrayList<Film> filmList = new ArrayList<>();
+    public List<Film> getFilms() {
+        List<Film> filmList = new ArrayList<>();
         for(Film film: filmStorage.values()) {
             filmList.add(film);
         }
         return filmList;
     }
 
-    public Film getFilmBuId(long id) {
+    public Film getFilmById(long id) {
         if(id <= 0 || !filmStorage.containsKey(id)) {
             throw new ValidationException(HttpStatus.NOT_FOUND, "Такого фильма нет или id не передан.");
         }
         return filmStorage.get(id);
     }
 
-    public Map<Long, Film> getFilmsMap() {
+    public Map<Long, Film> getFilmStorage() {
         return filmStorage;
-    }
-
-    public TreeSet<Film> getPrioritizedTasks() {
-        return prioritizedTasks;
     }
 
     private void validation(Film film) {

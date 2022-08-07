@@ -10,44 +10,41 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.model.Film;
 import ru.yandex.practicum.service.FilmService;
-import ru.yandex.practicum.storage.FilmStorage;
-
-import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    FilmStorage filmStorage;
-    FilmService filmService;
+
+    private FilmService filmService;
 
     @Autowired
-    FilmController(FilmStorage filmStorage, FilmService filmService) {
-        this.filmStorage = filmStorage;
+    FilmController(FilmService filmService) {
         this.filmService = filmService;
     }
 
     @PostMapping
     public Film create(@RequestBody Film film) {
         log.info("Получен POST запрос к эндпоинту: '/films', Строка параметров запроса: " + film.toString());
-        return filmStorage.addFilm(film);
+        return filmService.addFilm(film);
     }
 
     @PutMapping
     public Film update(@RequestBody Film film) {
         log.info("Получен PUT запрос к эндпоинту: '/films', Строка параметров запроса: " + film.toString());
-        return filmStorage.updateFilm(film);
+        return filmService.updateFilm(film);
     }
 
     @GetMapping
-    public ArrayList<Film> get() {
-        return filmStorage.getFilms();
+    public List<Film> get() {
+        return filmService.getFilms();
     }
 
 
     @GetMapping(value = "/{id}")
-    public Film getFilmBuId(@PathVariable Long id) {
-        return filmStorage.getFilmBuId(id);
+    public Film getFilmById(@PathVariable Long id) {
+        return filmService.getFilmById(id);
     }
 
     @PutMapping(value = "/{id}/like/{userId}")
@@ -61,10 +58,7 @@ public class FilmController {
     }
 
     @GetMapping(value = "/popular")
-    public ArrayList<Film> popularFilm(@RequestParam(required = false) Integer count) {
-        if(count == null) {
-            count = 0;
-        }
+    public List<Film> popularFilm(@RequestParam(required = false, defaultValue = "10") Integer count) {
         return filmService.bestFilmsList(count);
     }
 }

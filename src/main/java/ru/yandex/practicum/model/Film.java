@@ -8,8 +8,6 @@ package ru.yandex.practicum.model;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
-
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
@@ -29,7 +27,7 @@ public class Film implements Comparable<Film>{
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
-        this.rate = rateControl();
+        this.rate = rate;
     }
     public boolean addLike(long userId) {
         return likeList.add(userId);
@@ -40,21 +38,13 @@ public class Film implements Comparable<Film>{
         return this.rate - o.getRate();
     }
 
-    public void changePopularity(boolean raise) {
-        if(raise) {
-            rate = rate + 1;
-        } else {
-            rate = rate - 1;
-        }
-    }
-
-    private int rateControl() {
+    public void rateControl() {
         int i;
         if(likeList.isEmpty()) {
             i = 0;
         } else {
             i = likeList.size();
         }
-        return i;
+        rate = i;
     }
 }

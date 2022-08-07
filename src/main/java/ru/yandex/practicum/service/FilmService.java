@@ -8,14 +8,15 @@ import ru.yandex.practicum.exception.ValidationException;
 import ru.yandex.practicum.model.Film;
 import ru.yandex.practicum.storage.FilmStorage;
 import ru.yandex.practicum.storage.UserStorage;
-import java.util.ArrayList;
 
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
 public class FilmService  {
-    UserStorage userStorage;
-    FilmStorage filmStorage;
+    private UserStorage userStorage;
+    private FilmStorage filmStorage;
 
     @Autowired
     FilmService(UserStorage userStorage, FilmStorage filmStorage) {
@@ -25,57 +26,70 @@ public class FilmService  {
 
 
     public void addLike(long id, long userId) {
-        if(filmStorage.getFilmsMap().isEmpty() || userStorage.getUsersMap().isEmpty()) {
+        if(storageIsEmpty()) {
             throw new ValidationException(HttpStatus.BAD_REQUEST, "Нет фильма с id: " + id + ".");
         }
-        if (!filmStorage.getFilmsMap().containsKey(id)) {
+        if (!filmStorage.getFilmStorage().containsKey(id)) {
             throw new ValidationException(HttpStatus.BAD_REQUEST, "Нет фильма с id: " + id + ".");
         }
-        if (!userStorage.getUsersMap().containsKey(userId)) {
+        if (!userStorage.getUserStorage().containsKey(userId)) {
             throw new ValidationException(HttpStatus.BAD_REQUEST, "Нет пользователя с id: " + userId + ".");
         }
-        if (filmStorage.getFilmsMap().get(id).addLike(userId)) {
-            filmStorage.getFilmsMap().get(id).changePopularity(true);
+        if (filmStorage.getFilmStorage().get(id).addLike(userId)) {
+            filmStorage.getFilmStorage().get(id).rateControl();
         }
     }
 
     public void deleteLike(long id, long userId) {
-        if(filmStorage.getFilmsMap().isEmpty() || userStorage.getUsersMap().isEmpty()) {
+        if(storageIsEmpty()) {
             throw new ValidationException(HttpStatus.NOT_FOUND, "Нет фильма с id: " + id + ".");
         }
-        if(!filmStorage.getFilmsMap().containsKey(id)) {
+        if(!filmStorage.getFilmStorage().containsKey(id)) {
             throw new ValidationException(HttpStatus.NOT_FOUND, "Нет фильма с id: " + id + ".");
         }
-        if(!userStorage.getUsersMap().containsKey(userId)) {
+        if(!userStorage.getUserStorage().containsKey(userId)) {
             throw new ValidationException(HttpStatus.NOT_FOUND, "Нет пользователя с id: " + userId + ".");
         }
 
-        filmStorage.getFilmsMap().get(id).getLikeList().remove(userId);
-        filmStorage.getFilmsMap().get(id).changePopularity(false);
+        filmStorage.getFilmStorage().get(id).getLikeList().remove(userId);
+        filmStorage.getFilmStorage().get(id).rateControl();
     }
 
-    public ArrayList<Film> bestFilmsList(int count) {
-        ArrayList<Film> prioritizedTasksList = new ArrayList<>();
-        if(count == 0) {
-            count = 10;
-        }
-        if(!filmStorage.getPrioritizedTasks().isEmpty()) {
-            if(filmStorage.getPrioritizedTasks().size() <= count) {
-                for (Film film: filmStorage.getPrioritizedTasks()) {
-                    prioritizedTasksList.add(filmStorage.getFilmsMap().get(film.getId()));
-                }
-            } else {
-                int i = 0;
-                for (Film film: filmStorage.getPrioritizedTasks()) {
-                    if(i < count) {
-                        prioritizedTasksList.add(filmStorage.getFilmsMap().get(film.getId()));
-                        i = i + 1;
-                    }
-                }
+    public Film addFilm(Film film) {
+        return filmStorage.addFilm(film);
+    }
+
+    public Film updateFilm(Film film) {
+        return filmStorage.updateFilm(film);
+    }
+
+    public List<Film> getFilms() {
+        return filmStorage.getFilms();
+    }
+
+    public Film getFilmById(long id) {
+        return filmStorage.getFilmById(id);
+    }
+
+    public List<Film> bestFilmsList(int count) {
+        filmStorage.getFilmStorage();
+        List<Film> prioritizedTasksList = new ArrayList<>();
+        if(!filmStorage.getFilmStorage().isEmpty()) {
+            for (Film film : filmStorage.getFilmStorage().values()) {
+                prioritizedTasksList.add(film);
             }
+
+            prioritizedTasksList = prioritizedTasksList.stream()
+                    .sorted(Comparator.comparing(Film::getRate).reversed())
+                    .limit(count)
+                    .collect(Collectors.toList());
+
         }
 
         return prioritizedTasksList;
     }
 
+    private boolean storageIsEmpty() {
+        return filmStorage.getFilmStorage().isEmpty() || userStorage.getUserStorage().isEmpty();
+    }
 }

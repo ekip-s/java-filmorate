@@ -7,6 +7,7 @@ import ru.yandex.practicum.model.User;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -23,6 +24,10 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
+    public void delete(Long id) {
+        userStorage.remove(id);
+    }
+
     public User updateUser(User user) {
         if(user.getId() <= 0 || !userStorage.containsKey(user.getId())) {
             throw new ValidationException(HttpStatus.NOT_FOUND, "Такого пользовалеоя нет или id не передан.");
@@ -32,7 +37,7 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
-    public User getUserBuId(Long id) {
+    public User getUserById(Long id) {
         if(userStorage.isEmpty()) {
             throw new ValidationException(HttpStatus.NOT_FOUND, "Такого пользовалеоя нет или id передан неверно");
         }
@@ -63,15 +68,15 @@ public class InMemoryUserStorage implements UserStorage {
         }
     }
 
-    public ArrayList<User> getUsers() {
-        ArrayList<User> userList = new ArrayList<>();
+    public List<User> getUsers() {
+        List<User> userList = new ArrayList<>();
         for(User user: userStorage.values()) {
             userList.add(user);
         }
         return userList;
     }
 
-    public Map<Long, User> getUsersMap() {
+    public Map<Long, User> getUserStorage() {
         return userStorage;
     }
 
