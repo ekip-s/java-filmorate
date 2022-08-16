@@ -26,7 +26,7 @@ public class FilmService  {
 
 
     public void addLike(long id, long userId) {
-        if(storageIsEmpty()) {
+        if(isStorageEmpty()) {
             throw new ValidationException(HttpStatus.BAD_REQUEST, "Нет фильма с id: " + id + ".");
         }
         if (!filmStorage.getFilmStorage().containsKey(id)) {
@@ -41,7 +41,7 @@ public class FilmService  {
     }
 
     public void deleteLike(long id, long userId) {
-        if(storageIsEmpty()) {
+        if(isStorageEmpty()) {
             throw new ValidationException(HttpStatus.NOT_FOUND, "Нет фильма с id: " + id + ".");
         }
         if(!filmStorage.getFilmStorage().containsKey(id)) {
@@ -89,7 +89,7 @@ public class FilmService  {
         return prioritizedTasksList;
     }
 
-    private boolean storageIsEmpty() {
+    private boolean isStorageEmpty() {
         return filmStorage.getFilmStorage().isEmpty() || userStorage.getUserStorage().isEmpty();
     }
 }
