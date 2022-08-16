@@ -6,83 +6,59 @@
 package ru.yandex.practicum.controllers;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.exception.ValidationException;
 import ru.yandex.practicum.model.Film;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import ru.yandex.practicum.service.FilmService;
+import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    static private long filmId;
 
-    protected Map<Long, Film> filmStorage = new HashMap<>();
+    private FilmService filmService;
+
+    @Autowired
+    FilmController(FilmService filmService) {
+        this.filmService = filmService;
+    }
 
     @PostMapping
     public Film create(@RequestBody Film film) {
-        validation(film);
-        long id = generateFilmId();
-        film.setId(id);
-        filmStorage.put(id, film);
         log.info("Получен POST запрос к эндпоинту: '/films', Строка параметров запроса: " + film.toString());
-        return film;
+        return filmService.addFilm(film);
     }
-
 
     @PutMapping
     public Film update(@RequestBody Film film) {
-        if(film.getId() == 0 || !filmStorage.containsKey(film.getId())) {
-            throw new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR, "Такого фильма нет или id не передан.");
-        }
-        validation(film);
-        filmStorage.put(film.getId(), film);
         log.info("Получен PUT запрос к эндпоинту: '/films', Строка параметров запроса: " + film.toString());
-        return film;
+        return filmService.updateFilm(film);
     }
 
     @GetMapping
-    public ArrayList<Film> get() {
-        return getDataList();
+    public List<Film> get() {
+        return filmService.getFilms();
     }
 
-    private long generateFilmId() {
-        return ++filmId;
+
+    @GetMapping(value = "/{id}")
+    public Film getFilmById(@PathVariable Long id) {
+        return filmService.getFilmById(id);
     }
 
-    private void validation(Film film) {
-        String massage = null;
-        if(film.getName().isEmpty()) {
-            massage = "Ошибка валидации: название фильма не заполнено";
-            throw new ValidationException(HttpStatus.BAD_REQUEST, massage);
-        }
-        if(film.getDescription().length() > 200) {
-            massage = "Ошибка валидации: в описании более 200 символов";
-            throw new ValidationException(HttpStatus.BAD_REQUEST, massage);
-        }
-        if(film.getReleaseDate() == null) {
-            massage = "Ошибка валидации: нет даты выхода фильма";
-            throw new ValidationException(HttpStatus.BAD_REQUEST, massage);
-        }
-        if(film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            massage = "Ошибка валидации: дата выхода не может быть до 28.12.1895";
-            throw new ValidationException(HttpStatus.BAD_REQUEST, massage);
-        }
-        if(film.getDuration() < 0) {
-            massage = "Ошибка валидации: продолжительность фильма должна быть положительной";
-            throw new ValidationException(HttpStatus.BAD_REQUEST, massage);
-        }
+    @PutMapping(value = "/{id}/like/{userId}")
+    public void addLike(@PathVariable Long id,@PathVariable Long userId) {
+        filmService.addLike(id, userId);
     }
 
-    private ArrayList<Film>  getDataList() {
-        ArrayList<Film> filmList = new ArrayList<>();
-        for(Film film: filmStorage.values()) {
-            filmList.add(film);
-        }
-        return filmList;
+    @DeleteMapping(value = "/{id}/like/{userId}")
+    public void deleteLike(@PathVariable Long id,@PathVariable Long userId) {
+        filmService.deleteLike(id, userId);
+    }
+
+    @GetMapping(value = "/popular")
+    public List<Film> popularFilm(@RequestParam(required = false, defaultValue = "10") Integer count) {
+        return filmService.bestFilmsList(count);
     }
 }

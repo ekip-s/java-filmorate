@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -52,17 +53,17 @@ public class FilmValidationTest {
         String description201 = "11111111111111111111111111111111111111111111111111111111111111111111111111111111" +
                 "1111111111111111111111111111111111111111111111111111" +
                 "111111111111111111111111111111111111111111111111111111111111111111111";
-        film = new Film(1, "", "вот такой вот фильм", ld, 70);
-        film2 = new Film(2, "10+7 мгновений весны", "вот такой вот фильм", ld, 70);
-        film3 = new Film(3, "10+7 мгновений весны", description200, ld, 70);
-        film4 = new Film(4, "10+7 мгновений весны", description201, ld, 70);
+        film = new Film(1, "", "вот такой вот фильм", ld, 70, 0);
+        film2 = new Film(2, "10+7 мгновений весны", "вот такой вот фильм", ld, 70, 0);
+        film3 = new Film(3, "10+7 мгновений весны", description200, ld, 70, 0);
+        film4 = new Film(4, "10+7 мгновений весны", description201, ld, 70, 0);
         film5 = new Film(5, "10+7 мгновений весны", "вот такой вот фильм",
-                null, 70);
+                null, 70, 0);
         film6 = new Film(5, "10+7 мгновений весны", "вот такой вот фильм",
-                ld2, 70);
-        film7 = new Film(1, "10+7 мгновений весны", "вот такой вот фильм", ld, -70);
-        film8 = new Film(1, "10+7 мгновений весны", "вот такой вот фильм", ld, 80);
-        film9 = new Film(-42, "10+7 мгновений весны", "вот такой вот фильм", ld, 80);
+                ld2, 70, 0);
+        film7 = new Film(1, "10+7 мгновений весны", "вот такой вот фильм", ld, -70, 0);
+        film8 = new Film(1, "10+7 мгновений весны", "вот такой вот фильм", ld, 80, 0);
+        film9 = new Film(-42, "10+7 мгновений весны", "вот такой вот фильм", ld, 80, 0);
 
     }
 
@@ -141,7 +142,7 @@ public class FilmValidationTest {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.put(address)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(gson.toJson(film9)))
-                .andExpect(MockMvcResultMatchers.status().isInternalServerError()).andReturn();
+                .andExpect(MockMvcResultMatchers.status().isNotFound()).andReturn();
         String message = response.getResolvedException().getMessage();
         assertTrue(message.contains("Такого фильма нет или id не передан."));
     }

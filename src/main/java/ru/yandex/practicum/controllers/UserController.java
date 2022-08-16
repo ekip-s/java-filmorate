@@ -6,81 +6,64 @@
 package ru.yandex.practicum.controllers;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.exception.ValidationException;
 import ru.yandex.practicum.model.User;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import ru.yandex.practicum.service.UserService;
+import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    static private long userId;
 
-    private Map<Long, User> userStorage = new HashMap<>();
+    private UserService userService;
 
+    @Autowired
+    UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @PostMapping
     public User create(@RequestBody User user) {
-        validation(user);
-        long id = generateUserId();
-        user.setId(id);
-        userStorage.put(id, user);
         log.info("Получен POST запрос к эндпоинту: '/users', Строка параметров запроса: " + user.toString());
-        return user;
+        return userService.createUser(user);
     }
 
     @PutMapping
     public User update(@RequestBody User user) {
-        if(user.getId() == 0 || !userStorage.containsKey(user.getId())) {
-            throw new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR, "Такого пользовалеоя нет или id не передан.");
-        }
-        validation(user);
-        userStorage.put(user.getId(), user);
         log.info("Получен PUT запрос к эндпоинту: '/users', Строка параметров запроса: " + user.toString());
-        return user;
+        return userService.updateUser(user);
     }
 
     @GetMapping
-    public ArrayList<User> get() {
-        return getDataList();
+    public List<User> get() {
+        return userService.getUsers();
     }
 
-    private long generateUserId() {
-        userId = userId + 1;
-        return userId;
+    @GetMapping(value = "/{id}")
+    public User getUserBuId(@PathVariable Long id) {
+        return userService.getUserById(id);
     }
 
-    private void validation(User user) {
-        if(user.getName() == null || user.getName().equals("")) {
-            user.setName(user.getLogin());
-        }
-        if(user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошибка валидации: дата рождения в будущем");
-        }
-        if(user.getEmail().isEmpty()) {
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошибка валидации: нужно заполнить e-mail");
-        }
-        if(!user.getEmail().contains("@")) {
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошибка валидации: e-mail введен неправильно");
-        }
-        if(user.getLogin().isEmpty()) {
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошибка валидации: нужно заполнить логин");
-        }
-        if(user.getLogin().contains(" ")) {
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошибка валидации: в логине нельзя использовать пробелы");
-        }
+    @PutMapping(value = "/{id}/friends/{friendId}")
+    public void addFriends(@PathVariable Long id,@PathVariable Long friendId) {
+        userService.addFriend(id, friendId);
     }
 
-    private ArrayList<User> getDataList() {
-        ArrayList<User> userList = new ArrayList<>();
-        for(User user: userStorage.values()) {
-            userList.add(user);
-        }
-        return userList;
+    @DeleteMapping(value = "/{id}/friends/{friendId}")
+    public void deleteFriends(@PathVariable Long id,@PathVariable Long friendId) {
+        userService.deleteFriend(id, friendId);
     }
-}
+
+    @GetMapping(value = "/{id}/friends")
+    public List<User> getFriends(@PathVariable Long id) {
+        return userService.friendList(id);
+    }
+
+    @GetMapping(value = "/{id}/friends/common/{otherId}")
+    public List<User> commonFriends(@PathVariable Long id,@PathVariable Long otherId) {
+        return userService.mutualFriends(id, otherId);
+    }
+
+    }
