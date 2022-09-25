@@ -7,17 +7,21 @@ package ru.yandex.practicum.controllers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.model.Film;
 import ru.yandex.practicum.service.FilmService;
+
+import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
 @RestController
+@Validated
 @RequestMapping("/films")
 public class FilmController {
 
-    private FilmService filmService;
+    private final FilmService filmService;
 
     @Autowired
     FilmController(FilmService filmService) {
@@ -25,13 +29,13 @@ public class FilmController {
     }
 
     @PostMapping
-    public Film create(@RequestBody Film film) {
+    public Film create(@RequestBody @Valid Film film) {
         log.info("Получен POST запрос к эндпоинту: '/films', Строка параметров запроса: " + film.toString());
         return filmService.addFilm(film);
     }
 
     @PutMapping
-    public Film update(@RequestBody Film film) {
+    public Film update(@RequestBody @Valid Film film) {
         log.info("Получен PUT запрос к эндпоинту: '/films', Строка параметров запроса: " + film.toString());
         return filmService.updateFilm(film);
     }

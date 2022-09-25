@@ -1,58 +1,47 @@
 package ru.yandex.practicum.service;
 
 
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import ru.yandex.practicum.exception.ValidationException;
 import ru.yandex.practicum.model.Film;
+import ru.yandex.practicum.model.Genres;
+import ru.yandex.practicum.model.MPA;
 import ru.yandex.practicum.storage.FilmStorage;
 import ru.yandex.practicum.storage.UserStorage;
-
 import java.util.*;
-import java.util.stream.Collectors;
+
 
 
 @Service
-public class FilmService  {
+@NoArgsConstructor
+public class FilmService {
     private UserStorage userStorage;
     private FilmStorage filmStorage;
 
     @Autowired
-    FilmService(UserStorage userStorage, FilmStorage filmStorage) {
+    FilmService(@Qualifier("userDbStorage") UserStorage userStorage,
+                @Qualifier("filmDbStorage")  FilmStorage filmStorage) {
         this.userStorage = userStorage;
         this.filmStorage = filmStorage;
     }
 
 
     public void addLike(long id, long userId) {
-        if(isStorageEmpty()) {
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "Нет фильма с id: " + id + ".");
-        }
-        if (!filmStorage.getFilmStorage().containsKey(id)) {
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "Нет фильма с id: " + id + ".");
-        }
-        if (!userStorage.getUserStorage().containsKey(userId)) {
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "Нет пользователя с id: " + userId + ".");
-        }
-        if (filmStorage.getFilmStorage().get(id).addLike(userId)) {
-            filmStorage.getFilmStorage().get(id).rateControl();
-        }
+        filmStorage.addLike(id, userId);
     }
 
     public void deleteLike(long id, long userId) {
-        if(isStorageEmpty()) {
-            throw new ValidationException(HttpStatus.NOT_FOUND, "Нет фильма с id: " + id + ".");
+        if(id < 0 || userId < 0) {
+            throw new ValidationException(HttpStatus.NOT_FOUND, "Ошибка валидации: отрицательный id");
         }
-        if(!filmStorage.getFilmStorage().containsKey(id)) {
-            throw new ValidationException(HttpStatus.NOT_FOUND, "Нет фильма с id: " + id + ".");
-        }
-        if(!userStorage.getUserStorage().containsKey(userId)) {
-            throw new ValidationException(HttpStatus.NOT_FOUND, "Нет пользователя с id: " + userId + ".");
-        }
-
-        filmStorage.getFilmStorage().get(id).getLikeList().remove(userId);
-        filmStorage.getFilmStorage().get(id).rateControl();
+        filmStorage.deleteLike(id, userId);
     }
 
     public Film addFilm(Film film) {
@@ -60,6 +49,9 @@ public class FilmService  {
     }
 
     public Film updateFilm(Film film) {
+        if(film.getId() < 0) {
+            throw new ValidationException(HttpStatus.NOT_FOUND, "Ошибка валидации: отрицательный id");
+        }
         return filmStorage.updateFilm(film);
     }
 
@@ -68,28 +60,38 @@ public class FilmService  {
     }
 
     public Film getFilmById(long id) {
+        if(id < 0) {
+            throw new ValidationException(HttpStatus.NOT_FOUND, "Ошибка валидации: отрицательный id");
+        }
         return filmStorage.getFilmById(id);
     }
 
-    public List<Film> bestFilmsList(int count) {
-        filmStorage.getFilmStorage();
-        List<Film> prioritizedTasksList = new ArrayList<>();
-        if(!filmStorage.getFilmStorage().isEmpty()) {
-            for (Film film : filmStorage.getFilmStorage().values()) {
-                prioritizedTasksList.add(film);
-            }
+    public List<Film> bestFilmsList(int c) {
+        return filmStorage.bestFilmsList(c);
+    }
 
-            prioritizedTasksList = prioritizedTasksList.stream()
-                    .sorted(Comparator.comparing(Film::getRate).reversed())
-                    .limit(count)
-                    .collect(Collectors.toList());
-
+    public MPA getMPA(long id) {
+        if(id < 0) {
+            throw new ValidationException(HttpStatus.NOT_FOUND, "Ошибка валидации: отрицательный id");
         }
-
-        return prioritizedTasksList;
+        return filmStorage.getMPA(id);
     }
 
-    private boolean isStorageEmpty() {
-        return filmStorage.getFilmStorage().isEmpty() || userStorage.getUserStorage().isEmpty();
+    public List<MPA> MPAList() {
+        return filmStorage.MPAList();
     }
+
+    public List<Genres> getGenres() {
+        return filmStorage.getGenresList();
+    }
+
+
+    public Genres getGenresById(Long id) {
+        if(id < 0) {
+            throw new ValidationException(HttpStatus.NOT_FOUND, "Ошибка валидации: отрицательный id");
+        }
+        return filmStorage.getGenresById(id);
+    }
+
+
 }

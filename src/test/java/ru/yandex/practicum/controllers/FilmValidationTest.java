@@ -12,13 +12,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import ru.yandex.practicum.model.Film;
+import ru.yandex.practicum.model.MPA;
+
 import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -45,6 +46,7 @@ public class FilmValidationTest {
 
     @BeforeEach
     void createTestSpase() {
+        MPA mpa = new MPA(1, "G");
         LocalDate ld = LocalDate.of(2021, 11, 11);
         LocalDate ld2 = LocalDate.of(1640, 11, 11);
         String description200 = "11111111111111111111111111111111111111111111111111111111111111111111111111111111" +
@@ -53,17 +55,17 @@ public class FilmValidationTest {
         String description201 = "11111111111111111111111111111111111111111111111111111111111111111111111111111111" +
                 "1111111111111111111111111111111111111111111111111111" +
                 "111111111111111111111111111111111111111111111111111111111111111111111";
-        film = new Film(1, "", "вот такой вот фильм", ld, 70, 0);
-        film2 = new Film(2, "10+7 мгновений весны", "вот такой вот фильм", ld, 70, 0);
-        film3 = new Film(3, "10+7 мгновений весны", description200, ld, 70, 0);
-        film4 = new Film(4, "10+7 мгновений весны", description201, ld, 70, 0);
+        film = new Film(1, "", "вот такой вот фильм", ld, 70, 0, mpa, null);
+        film2 = new Film(2, "10+7 мгновений весны", "вот такой вот фильм", ld, 70, 0, mpa, null);
+        film3 = new Film(3, "10+7 мгновений весны", description200, ld, 70, 0, mpa, null);
+        film4 = new Film(4, "10+7 мгновений весны", description201, ld, 70, 0, mpa, null);
         film5 = new Film(5, "10+7 мгновений весны", "вот такой вот фильм",
-                null, 70, 0);
+                null, 70, 0, null, null);
         film6 = new Film(5, "10+7 мгновений весны", "вот такой вот фильм",
-                ld2, 70, 0);
-        film7 = new Film(1, "10+7 мгновений весны", "вот такой вот фильм", ld, -70, 0);
-        film8 = new Film(1, "10+7 мгновений весны", "вот такой вот фильм", ld, 80, 0);
-        film9 = new Film(-42, "10+7 мгновений весны", "вот такой вот фильм", ld, 80, 0);
+                ld2, 70, 0, null, null);
+        film7 = new Film(1, "10+7 мгновений весны", "вот такой вот фильм", ld, -70, 0, mpa, null);
+        film8 = new Film(1, "10+7 мгновений весны", "вот такой вот фильм", ld, 80, 0, mpa, null);
+        film9 = new Film(-42, "10+7 мгновений весны", "вот такой вот фильм", ld, 80, 0, mpa, null);
 
     }
 
@@ -86,7 +88,7 @@ public class FilmValidationTest {
                         .content(gson.toJson(film)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
         String message = response.getResolvedException().getMessage();
-        assertTrue(message.contains("Ошибка валидации: название фильма не заполнено"));
+        assertTrue(message.contains("Ошибка валидации: название фильма не заполнено."));
     }
 
     @Test
@@ -104,7 +106,7 @@ public class FilmValidationTest {
                         .content(gson.toJson(film4)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
         String message = response.getResolvedException().getMessage();
-        assertTrue(message.contains("Ошибка валидации: в описании более 200 символов"));
+        assertTrue(message.contains("Ошибка валидации: в описании более 200 символов."));
     }
 
     @Test
@@ -114,7 +116,7 @@ public class FilmValidationTest {
                         .content(gson.toJson(film5)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
         String message = response.getResolvedException().getMessage();
-        assertTrue(message.contains("Ошибка валидации: нет даты выхода фильма"));
+        assertTrue(message.contains("Ошибка валидации: некорректная дата релиза."));
     }
 
     @Test
@@ -124,7 +126,7 @@ public class FilmValidationTest {
                         .content(gson.toJson(film6)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
         String message = response.getResolvedException().getMessage();
-        assertTrue(message.contains("Ошибка валидации: дата выхода не может быть до 28.12.1895"));
+        assertTrue(message.contains("Ошибка валидации: некорректная дата релиза."));
     }
 
     @Test
@@ -144,7 +146,7 @@ public class FilmValidationTest {
                         .content(gson.toJson(film9)))
                 .andExpect(MockMvcResultMatchers.status().isNotFound()).andReturn();
         String message = response.getResolvedException().getMessage();
-        assertTrue(message.contains("Такого фильма нет или id не передан."));
+        assertTrue(message.contains("Ошибка валидации: отрицательный id"));
     }
 
 }

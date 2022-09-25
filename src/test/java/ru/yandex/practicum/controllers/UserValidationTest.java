@@ -73,7 +73,7 @@ public class UserValidationTest {
                         .content(gson.toJson(user2)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
         String message = response.getResolvedException().getMessage();
-        assertTrue(message.contains("Ошибка валидации: дата рождения в будущем"));
+        assertTrue(message.contains("Ошибка валидации: дата рождения должна быть в прошлом"));
     }
 
     @Test
@@ -83,7 +83,7 @@ public class UserValidationTest {
                         .content(gson.toJson(user3)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
         String message = response.getResolvedException().getMessage();
-        assertTrue(message.contains("Ошибка валидации: нужно заполнить e-mail"));
+        assertTrue(message.contains("Ошибка валидации: e-mail введен неправильно."));
     }
 
     @Test
@@ -113,7 +113,7 @@ public class UserValidationTest {
                         .content(gson.toJson(user6)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
         String message = response.getResolvedException().getMessage();
-        assertTrue(message.contains("Ошибка валидации: в логине нельзя использовать пробелы"));
+        assertTrue(message.contains("шибка валидации: логин должен быть без пробелов"));
     }
 
     @Test
@@ -121,9 +121,7 @@ public class UserValidationTest {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.put(address)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(gson.toJson(user7)))
-                .andExpect(MockMvcResultMatchers.status().isNotFound()).andReturn();
-        String message = response.getResolvedException().getMessage();
-        assertTrue(message.contains("Такого пользовалеоя нет или id не передан."));
+                .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
     }
 
 

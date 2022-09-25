@@ -4,35 +4,36 @@
  * @version 1
  */
 package ru.yandex.practicum.model;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.context.annotation.Primary;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+
+
+import javax.validation.constraints.*;
+
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
+
     private long id;
+    @Email(message = "Ошибка валидации: e-mail введен неправильно.")
+    @NotBlank(message = "Ошибка валидации: e-mail введен неправильно.")
     private String email;
+    @NotBlank(message = "Ошибка валидации: нужно заполнить логин")
+    @Pattern(regexp = "^([^\s])*$", message = "Ошибка валидации: логин должен быть без пробелов")
     private String login;
+
     private String name;
+    @Past(message = "Ошибка валидации: дата рождения должна быть в прошлом")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthday;
-
-    private Set<Long> friends = new HashSet<>();
-
-    public User(long id, String email, String login, String name, LocalDate birthday) {
-        this.id = id;
-        this.email = email;
-        this.login = login;
-        this.name = name;
-        this.birthday = birthday;
     }
-
-    public boolean addFriend(long id) {
-        return friends.add(id);
-    }
-
-}
 
