@@ -54,17 +54,6 @@ public class UserValidationTest {
 
     }
 
-    @Test
-    public void isOkPostAndPutTest() throws Exception {
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post(address)
-                        .contentType(MediaType.APPLICATION_JSON_UTF8)
-                        .content(gson.toJson(user)))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        MvcResult response2 = mockMvc.perform(MockMvcRequestBuilders.put(address)
-                        .contentType(MediaType.APPLICATION_JSON_UTF8)
-                        .content(gson.toJson(user)))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-    }
 
     @Test
     public void dateInFutureTest() throws Exception {
