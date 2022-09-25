@@ -113,6 +113,7 @@ public class UserValidationTest {
                         .content(gson.toJson(user6)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
         String message = response.getResolvedException().getMessage();
+
         assertTrue(message.contains("шибка валидации: логин должен быть без пробелов"));
     }
 
