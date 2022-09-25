@@ -24,18 +24,12 @@ public class FilmDbStorage implements FilmStorage {
     private static final String CREATE = "INSERT INTO film (name, description, releaseDate, duration, rate, mpa_id)\n" +
             "VALUES(?, ?, ?, ?, ?, ?)";
 
-    private static final String UPDATE = """
-                UPDATE film
-                SET
-                    name = ?,
-                    description = ?,
-                    releaseDate = ?, 
-                    duration = ?,
-                    rate = ?, 
-                    mpa_id = ?
-                WHERE
-                    id = ?
-            """;
+    private static final String UPDATE = "UPDATE film\n" +
+            "SET\n" +
+            "name = ?, description = ?, releaseDate = ?, duration = ?, rate = ?, mpa_id = ?\n" +
+            "WHERE id = ?";
+
+
 
     @Autowired
     public FilmDbStorage(JdbcTemplate jdbcTemplate) {
@@ -119,10 +113,9 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public String getMpa(long id) {
-        String mpa = (String) jdbcTemplate.queryForObject("""
-                SELECT name FROM mpa
-                WHERE id=?
-                """, new Object[]{id}, String.class);
+        String mpa = (String) jdbcTemplate.queryForObject(
+                "SELECT name FROM mpa\n" +
+                "WHERE id=?", new Object[]{id}, String.class);
         return mpa;
     }
 
@@ -133,27 +126,24 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     public List<Film> bestFilmsList(int count) {
-        return setGenreAndMpaList(jdbcTemplate.query("""
-                SELECT * FROM film
-                ORDER BY rate DESC
-                LIMIT ?
-                """, new Object[]{count}, new FilmMapper()));
+        return setGenreAndMpaList(jdbcTemplate.query(
+                "SELECT * FROM film\n" +
+                "ORDER BY rate DESC\n" +
+                "LIMIT ?", new Object[]{count}, new FilmMapper()));
     }
 
     @Override
     public List<Genres> getGenres(long filmId) {
         List<Genres> genresNew = new ArrayList<>();
-        List<Genres> genres = jdbcTemplate.query("""
-                SELECT id FROM genres_summary_list
-                WHERE film_id=?
-                """, new Object[]{filmId}, new BeanPropertyRowMapper<>(Genres.class));
+        List<Genres> genres = jdbcTemplate.query(
+                "SELECT id FROM genres_summary_list\n" +
+                "WHERE film_id=?\n", new Object[]{filmId}, new BeanPropertyRowMapper<>(Genres.class));
 
         if (!genres.isEmpty()) {
             for (Genres g : genres) {
-                String name = (String) jdbcTemplate.queryForObject("""
-                        SELECT name FROM genre
-                        WHERE id=?
-                        """, new Object[]{g.getId()}, String.class);
+                String name = (String) jdbcTemplate.queryForObject(
+                        "SELECT name FROM genre\n" +
+                        "WHERE id=?\n", new Object[]{g.getId()}, String.class);
                 g.setName(name);
                 genresNew.add(g);
             }
@@ -234,24 +224,22 @@ public class FilmDbStorage implements FilmStorage {
         if (getFilmById(filmId) != null) {
             int rate = getFilmById(filmId).getRate() + meaning;
             if (rate >= 0) {
-                jdbcTemplate.update("""
-                            UPDATE film
-                            SET
-                                rate = ?
-                            WHERE
-                                id = ?
-                        """, rate, filmId);
+                jdbcTemplate.update(
+                            "UPDATE film\n" +
+                            "SET\n" +
+                                "rate = ?\n" +
+                            "WHERE\n" +
+                                "id = ?", rate, filmId);
             }
         }
     }
 
     private boolean genreСheck(long filmId, long id) {
         boolean rezult = false;
-        List<GenresSummary> i = jdbcTemplate.query("""
-        SELECT film_id
-        FROM genres_summary_list
-        WHERE film_id=? AND id=?
-        """, new Object[]{filmId, id}, new BeanPropertyRowMapper<>(GenresSummary.class));
+        List<GenresSummary> i = jdbcTemplate.query(
+        "SELECT film_id\n" +
+        "FROM genres_summary_list\n" +
+        "WHERE film_id=? AND id=?", new Object[]{filmId, id}, new BeanPropertyRowMapper<>(GenresSummary.class));
         if(i.isEmpty()) {
             rezult=true;
         }

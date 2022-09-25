@@ -24,16 +24,15 @@ public class UserDbStorage implements UserStorage {
             "VALUES (?, ?, ?, ?)";
     private static final String CREATE_FRIEND = "INSERT INTO friends_list(user_master, user_slave)\n" +
             "VALUES (?, ?)";
-    private static final String UPDATE = """
-        UPDATE users
-        SET
-            email = ?,
-            login = ?,
-            name = ?, 
-            birthday = ?
-        WHERE
-            id = ?
-    """;
+    private static final String UPDATE =
+        "UPDATE users\n" +
+        "SET\n" +
+            "email = ?,\n" +
+            "login = ?,\n" +
+            "name = ?,\n" +
+            "birthday = ?\n" +
+        "WHERE\n" +
+            "id = ?";
 
     private static final String GET = "SELECT * FROM users";
     private static final String DELETE = "DELETE FROM users WHERE id=?";
@@ -119,11 +118,10 @@ public class UserDbStorage implements UserStorage {
     @Override
     public void addFriend(long id, long friendId) {
         Friendship friendship = jdbcTemplate.query
-                ("""
-                               SELECT *
-                               FROM friends_list
-                               WHERE user_master=? AND user_slave=?
-                               """,
+                (
+                               "SELECT *\n" +
+                               "FROM friends_list\n" +
+                               "WHERE user_master=? AND user_slave=?",
                         new Object[]{id, friendId}, new BeanPropertyRowMapper<>(Friendship.class))
                 .stream().findAny().orElse(null);
 
@@ -134,14 +132,13 @@ public class UserDbStorage implements UserStorage {
     @Override
     public List<User> mutualFriends(long id, long friendId) {
         List<User> users = new ArrayList<>();
-        List<Long> mutualFriends = jdbcTemplate.query("""
-                SELECT user_slave
-                FROM friends_list
-                WHERE
-                user_master IN(?,?)
-                GROUP BY user_slave
-                having count(*) > 1
-                """, new Object[]{id, friendId}, (rs, rowNum) -> rs.getLong(1));
+        List<Long> mutualFriends = jdbcTemplate.query(
+                "SELECT user_slave\n" +
+                "FROM friends_list\n" +
+                "WHERE\n" +
+                "user_master IN(?,?)\n" +
+                "GROUP BY user_slave\n" +
+                "having count(*) > 1", new Object[]{id, friendId}, (rs, rowNum) -> rs.getLong(1));
         if(!mutualFriends.isEmpty()) {
             for (Long i : mutualFriends) {
                 users.add(getUserById(i));
@@ -152,11 +149,10 @@ public class UserDbStorage implements UserStorage {
     @Override
     public List<User> friendList(long id) {
         List<User> friendList = new ArrayList<>();
-        List<Friendship> friends = jdbcTemplate.query("""
-                SELECT *
-                FROM friends_list
-                WHERE user_master=?
-                """, new Object[]{id}, new BeanPropertyRowMapper<>(Friendship.class));
+        List<Friendship> friends = jdbcTemplate.query(
+                "SELECT *\n" +
+                "FROM friends_list\n" +
+                "WHERE user_master=?", new Object[]{id}, new BeanPropertyRowMapper<>(Friendship.class));
         if(!friends.isEmpty()) {
             for (Friendship i : friends) {
                 friendList.add(getUserById(i.getUser_slave()));
@@ -166,11 +162,10 @@ public class UserDbStorage implements UserStorage {
     }
     @Override
     public void deleteFriend(long id, long friendId) {
-        jdbcTemplate.update("""
-                DELETE
-                FROM friends_list
-                WHERE user_master=? AND user_slave=?
-                """, new Object[]{id, friendId});
+        jdbcTemplate.update(
+                "DELETE\n" +
+                "FROM friends_list\n" +
+                "WHERE user_master=? AND user_slave=?", new Object[]{id, friendId});
     }
 }
 
