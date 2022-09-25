@@ -12,7 +12,7 @@
 	<name>filmorate</name>
 	<description>Мини-версия кинопоиска</description>
 	<properties>
-		<java.version>18</java.version>
+		<java.version>16</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
