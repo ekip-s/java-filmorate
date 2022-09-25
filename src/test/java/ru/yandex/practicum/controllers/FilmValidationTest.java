@@ -80,14 +80,6 @@ public class FilmValidationTest {
     }
 
     @Test
-    public void description200Test() throws Exception {
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post(address)
-                        .contentType(MediaType.APPLICATION_JSON_UTF8)
-                        .content(gson.toJson(film3)))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-    }
-
-    @Test
     public void description201Test() throws Exception {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post(address)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
