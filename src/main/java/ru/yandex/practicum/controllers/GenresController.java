@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.model.Genres;
-import ru.yandex.practicum.model.MPA;
 import ru.yandex.practicum.service.FilmService;
 
 import java.util.List;
@@ -22,7 +21,7 @@ public class GenresController {
     private final FilmService filmService;
 
     @Autowired
-    GenresController(FilmService filmService) {
+    public GenresController(FilmService filmService) {
         this.filmService = filmService;
     }
 

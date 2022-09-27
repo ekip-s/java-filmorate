@@ -9,16 +9,7 @@ public class ReleaseDateValidator implements ConstraintValidator<ReleaseDate, Lo
 
     @Override
     public boolean isValid(LocalDate localDate, ConstraintValidatorContext constraintValidatorContext) {
-        boolean rezult;
         LocalDate date = LocalDate.of(1895, 12, 28);
-
-        if(localDate == null) {
-            rezult = false;
-        } else {
-            rezult = localDate.isAfter(date);
-        }
-
-
-        return rezult;
+        return localDate == null ? false : localDate.isAfter(date);
     }
 }

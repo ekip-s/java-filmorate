@@ -22,7 +22,7 @@ public class MPAController {
     private final FilmService filmService;
 
     @Autowired
-    MPAController(FilmService filmService) {
+    public MPAController(FilmService filmService) {
         this.filmService = filmService;
     }
 

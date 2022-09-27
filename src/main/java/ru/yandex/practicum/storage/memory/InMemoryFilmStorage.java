@@ -1,4 +1,4 @@
-package ru.yandex.practicum.storage;
+package ru.yandex.practicum.storage.memory;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -6,6 +6,7 @@ import ru.yandex.practicum.exception.ValidationException;
 import ru.yandex.practicum.model.Film;
 import ru.yandex.practicum.model.Genres;
 import ru.yandex.practicum.model.MPA;
+import ru.yandex.practicum.storage.FilmStorage;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -58,10 +59,6 @@ public class InMemoryFilmStorage implements FilmStorage {
         return null;
     }
 
-    @Override
-    public Map<Long, Film> getFilmStorage() {
-        return filmStorage;
-    }
 
     @Override
     public List<Film> bestFilmsList(int c) {
@@ -81,26 +78,6 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public void deleteLike(long id, long userId) {
 
-    }
-
-    @Override
-    public MPA getMPA(long id) {
-        return null;
-    }
-
-    @Override
-    public List<MPA> MPAList() {
-        return null;
-    }
-
-    @Override
-    public List<Genres> getGenresList() {
-        return null;
-    }
-
-    @Override
-    public Genres getGenresById(Long id) {
-        return null;
     }
 
     private void validation(Film film) {

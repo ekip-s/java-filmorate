@@ -1,4 +1,4 @@
-package ru.yandex.practicum.storage;
+package ru.yandex.practicum.storage.db;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +9,8 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.model.Friendship;
 import ru.yandex.practicum.model.User;
+import ru.yandex.practicum.storage.UserStorage;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +24,7 @@ public class UserDbStorage implements UserStorage {
     private static Connection connection;
     private static final String CREATE = "INSERT INTO users(email, login, name, birthday)\n" +
             "VALUES (?, ?, ?, ?)";
-    private static final String CREATE_FRIEND = "INSERT INTO friends_list(user_master, user_slave)\n" +
+    private static final String CREATE_FRIEND = "INSERT INTO friends_list(userMaster, userSlave)\n" +
             "VALUES (?, ?)";
     private static final String UPDATE =
         "UPDATE users\n" +
@@ -121,7 +123,7 @@ public class UserDbStorage implements UserStorage {
                 (
                                "SELECT *\n" +
                                "FROM friends_list\n" +
-                               "WHERE user_master=? AND user_slave=?",
+                               "WHERE userMaster=? AND userSlave=?",
                         new Object[]{id, friendId}, new BeanPropertyRowMapper<>(Friendship.class))
                 .stream().findAny().orElse(null);
 
@@ -133,11 +135,11 @@ public class UserDbStorage implements UserStorage {
     public List<User> mutualFriends(long id, long friendId) {
         List<User> users = new ArrayList<>();
         List<Long> mutualFriends = jdbcTemplate.query(
-                "SELECT user_slave\n" +
+                "SELECT userSlave\n" +
                 "FROM friends_list\n" +
                 "WHERE\n" +
-                "user_master IN(?,?)\n" +
-                "GROUP BY user_slave\n" +
+                "userMaster IN(?,?)\n" +
+                "GROUP BY userSlave\n" +
                 "having count(*) > 1", new Object[]{id, friendId}, (rs, rowNum) -> rs.getLong(1));
         if(!mutualFriends.isEmpty()) {
             for (Long i : mutualFriends) {
@@ -152,10 +154,10 @@ public class UserDbStorage implements UserStorage {
         List<Friendship> friends = jdbcTemplate.query(
                 "SELECT *\n" +
                 "FROM friends_list\n" +
-                "WHERE user_master=?", new Object[]{id}, new BeanPropertyRowMapper<>(Friendship.class));
+                "WHERE userMaster=?", new Object[]{id}, new BeanPropertyRowMapper<>(Friendship.class));
         if(!friends.isEmpty()) {
             for (Friendship i : friends) {
-                friendList.add(getUserById(i.getUser_slave()));
+                friendList.add(getUserById(i.getUserSlave()));
             }
         }
         return friendList;
@@ -165,7 +167,7 @@ public class UserDbStorage implements UserStorage {
         jdbcTemplate.update(
                 "DELETE\n" +
                 "FROM friends_list\n" +
-                "WHERE user_master=? AND user_slave=?", new Object[]{id, friendId});
+                "WHERE userMaster=? AND userSlave=?", new Object[]{id, friendId});
     }
 }
 

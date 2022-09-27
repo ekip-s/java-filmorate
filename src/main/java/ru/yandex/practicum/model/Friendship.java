@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Friendship {
-    private long user_master;
-    private long user_slave;
-    private boolean is_confirmed;
+    private long userMaster;
+    private long userSlave;
+    private boolean isConfirmed;
 }

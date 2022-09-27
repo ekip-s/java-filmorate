@@ -17,8 +17,6 @@ public interface FilmStorage {
 
     String getMpa(long id);
 
-    Map<Long, Film> getFilmStorage();
-
     List<Film> bestFilmsList(int c);
 
     List<Genres> getGenres(long id);
@@ -27,11 +25,5 @@ public interface FilmStorage {
 
     void deleteLike(long id, long userId);
 
-    MPA getMPA(long id);
 
-    List<MPA> MPAList();
-
-    List<Genres> getGenresList();
-
-    Genres getGenresById(Long id);
 }

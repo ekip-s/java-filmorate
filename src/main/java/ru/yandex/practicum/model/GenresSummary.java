@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GenresSummary {
-    long film_id;
-    long id;
+    private long filmId;
+    private long id;
 }

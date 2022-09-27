@@ -1,20 +1,18 @@
 package ru.yandex.practicum.service;
 
-
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import ru.yandex.practicum.exception.ValidationException;
 import ru.yandex.practicum.model.Film;
 import ru.yandex.practicum.model.Genres;
 import ru.yandex.practicum.model.MPA;
 import ru.yandex.practicum.storage.FilmStorage;
-import ru.yandex.practicum.storage.UserStorage;
+import ru.yandex.practicum.storage.db.GenresDbStorage;
+import ru.yandex.practicum.storage.db.MPADbStorage;
+
 import java.util.*;
 
 
@@ -22,14 +20,16 @@ import java.util.*;
 @Service
 @NoArgsConstructor
 public class FilmService {
-    private UserStorage userStorage;
+    private MPADbStorage mpaDbStorage;
     private FilmStorage filmStorage;
+    private GenresDbStorage genresDbStorage;
 
     @Autowired
-    FilmService(@Qualifier("userDbStorage") UserStorage userStorage,
-                @Qualifier("filmDbStorage")  FilmStorage filmStorage) {
-        this.userStorage = userStorage;
+    public FilmService(MPADbStorage mpaDbStorage,
+                @Qualifier("filmDbStorage")  FilmStorage filmStorage, GenresDbStorage genresDbStorage) {
+        this.mpaDbStorage = mpaDbStorage;
         this.filmStorage = filmStorage;
+        this.genresDbStorage = genresDbStorage;
     }
 
 
@@ -74,15 +74,15 @@ public class FilmService {
         if(id < 0) {
             throw new ValidationException(HttpStatus.NOT_FOUND, "Ошибка валидации: отрицательный id");
         }
-        return filmStorage.getMPA(id);
+        return mpaDbStorage.getMPA(id);
     }
 
     public List<MPA> MPAList() {
-        return filmStorage.MPAList();
+        return mpaDbStorage.MPAList();
     }
 
     public List<Genres> getGenres() {
-        return filmStorage.getGenresList();
+        return genresDbStorage.getGenresList();
     }
 
 
@@ -90,7 +90,7 @@ public class FilmService {
         if(id < 0) {
             throw new ValidationException(HttpStatus.NOT_FOUND, "Ошибка валидации: отрицательный id");
         }
-        return filmStorage.getGenresById(id);
+        return genresDbStorage.getGenresById(id);
     }
 
 

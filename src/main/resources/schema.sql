@@ -41,22 +41,22 @@ birthday DATE NOT NULL
 );
 
 CREATE TABLE likes (
-film_id INTEGER REFERENCES film (id),
-user_id INTEGER REFERENCES users (id),
-PRIMARY KEY (film_id, user_id)
+filmId INTEGER REFERENCES film (id),
+userId INTEGER REFERENCES users (id),
+PRIMARY KEY (filmId, userId)
 );
 
 CREATE TABLE friends_list (
-user_master INTEGER REFERENCES users (id),
-user_slave INTEGER REFERENCES users (id),
-is_confirmed boolean,
-PRIMARY KEY (user_master, user_slave)
+userMaster INTEGER REFERENCES users (id),
+userSlave INTEGER REFERENCES users (id),
+isConfirmed boolean,
+PRIMARY KEY (userMaster, userSlave)
 );
 
 CREATE TABLE genres_summary_list (
-film_id INTEGER REFERENCES film (id),
+filmId INTEGER REFERENCES film (id),
 id INTEGER REFERENCES genre (id),
-PRIMARY KEY (film_id, id)
+PRIMARY KEY (filmId, id)
 );
 
 

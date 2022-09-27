@@ -1,4 +1,4 @@
-package ru.yandex.practicum.storage;
+package ru.yandex.practicum.storage.db;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -11,6 +11,7 @@ import ru.yandex.practicum.model.Film;
 import ru.yandex.practicum.model.Genres;
 import ru.yandex.practicum.model.GenresSummary;
 import ru.yandex.practicum.model.MPA;
+import ru.yandex.practicum.storage.FilmStorage;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
@@ -119,12 +120,6 @@ public class FilmDbStorage implements FilmStorage {
         return mpa;
     }
 
-
-    @Override
-    public Map<Long, Film> getFilmStorage() {
-        return null;
-    }
-
     public List<Film> bestFilmsList(int count) {
         return setGenreAndMpaList(jdbcTemplate.query(
                 "SELECT * FROM film\n" +
@@ -137,7 +132,7 @@ public class FilmDbStorage implements FilmStorage {
         List<Genres> genresNew = new ArrayList<>();
         List<Genres> genres = jdbcTemplate.query(
                 "SELECT id FROM genres_summary_list\n" +
-                "WHERE film_id=?\n", new Object[]{filmId}, new BeanPropertyRowMapper<>(Genres.class));
+                "WHERE filmId=?\n", new Object[]{filmId}, new BeanPropertyRowMapper<>(Genres.class));
 
         if (!genres.isEmpty()) {
             for (Genres g : genres) {
@@ -154,38 +149,16 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void addLike(long id, long userId) {
-        jdbcTemplate.update("INSERT INTO likes (film_id, user_id)" +
+        jdbcTemplate.update("INSERT INTO likes (filmId, userId)" +
                 " VALUES(?, ?)", id, userId);
         rateMaster(id, 1);
     }
     @Override
     public void deleteLike(long id, long userId) {
-        jdbcTemplate.update("DELETE FROM likes WHERE film_id=? AND user_id=?", id, userId);
+        jdbcTemplate.update("DELETE FROM likes WHERE filmId=? AND userId=?", id, userId);
         rateMaster(id, -1);
     }
-    @Override
-    public MPA getMPA(long id) {
-        return jdbcTemplate.query("SELECT * FROM mpa WHERE id=?", new Object[]{id},
-                new BeanPropertyRowMapper<>(MPA.class))
-                        .stream().findAny().orElse(null);
-    }
-    @Override
-    public List<MPA> MPAList() {
-        return jdbcTemplate.query("SELECT * FROM mpa", new BeanPropertyRowMapper<>(MPA.class));
-    }
 
-    @Override
-    public List<Genres> getGenresList() {
-        return jdbcTemplate.query("SELECT * FROM genre ORDER BY id", new BeanPropertyRowMapper<>(Genres.class));
-    }
-
-
-    @Override
-    public Genres getGenresById(Long id) {
-        return jdbcTemplate.query("SELECT * FROM genre WHERE id=?", new Object[]{id},
-                        new BeanPropertyRowMapper<>(Genres.class))
-                .stream().findAny().orElse(null);
-    }
 
     private Film setGenreAndMpa(Film film) {
         if (film != null) {
@@ -200,21 +173,16 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private List<Film> setGenreAndMpaList(List<Film> films) {
-        List<Film> listFilmNew = new ArrayList<>();
-        if (!films.isEmpty()) {
-            for (Film film : films) {
-                listFilmNew.add(setGenreAndMpa(film));
-            }
-        }
-        return listFilmNew;
+        films.stream().forEachOrdered((f) -> setGenreAndMpa(f));
+        return films;
     }
 
     private void saveGenre(long filmId, List<Genres> genres) {
-        jdbcTemplate.update("DELETE FROM genres_summary_list WHERE film_id=?", filmId);
+        jdbcTemplate.update("DELETE FROM genres_summary_list WHERE filmId=?", filmId);
 
         for (Genres g : genres) {
             if(genreСheck(filmId, g.getId())) {
-                jdbcTemplate.update("INSERT INTO genres_summary_list (film_id, id)\n" +
+                jdbcTemplate.update("INSERT INTO genres_summary_list (filmId, id)\n" +
                         "VALUES(?, ?)", filmId, g.getId());
             }
         }
@@ -235,15 +203,15 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private boolean genreСheck(long filmId, long id) {
-        boolean rezult = false;
+        boolean result = false;
         List<GenresSummary> i = jdbcTemplate.query(
-        "SELECT film_id\n" +
+        "SELECT filmId\n" +
         "FROM genres_summary_list\n" +
-        "WHERE film_id=? AND id=?", new Object[]{filmId, id}, new BeanPropertyRowMapper<>(GenresSummary.class));
+        "WHERE filmId=? AND id=?", new Object[]{filmId, id}, new BeanPropertyRowMapper<>(GenresSummary.class));
         if(i.isEmpty()) {
-            rezult=true;
+            result=true;
         }
-        return rezult;
+        return result;
     }
 }
 

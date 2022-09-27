@@ -1,9 +1,11 @@
-package ru.yandex.practicum.storage;
+package ru.yandex.practicum.storage.memory;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.exception.ValidationException;
 import ru.yandex.practicum.model.User;
+import ru.yandex.practicum.storage.UserStorage;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
