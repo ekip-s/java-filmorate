@@ -5,11 +5,11 @@ import javax.validation.ConstraintValidatorContext;
 import java.time.LocalDate;
 
 public class ReleaseDateValidator implements ConstraintValidator<ReleaseDate, LocalDate> {
-
+    private final LocalDate DATE = LocalDate.of(1895, 12, 28);
 
     @Override
     public boolean isValid(LocalDate localDate, ConstraintValidatorContext constraintValidatorContext) {
-        LocalDate date = LocalDate.of(1895, 12, 28);
-        return localDate == null ? false : localDate.isAfter(date);
+
+        return localDate == null ? false : localDate.isAfter(DATE);
     }
 }
