@@ -7,31 +7,35 @@ package ru.yandex.practicum.controllers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.model.User;
 import ru.yandex.practicum.service.UserService;
+
+import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
 @RestController
+@Validated
 @RequestMapping("/users")
 public class UserController {
 
-    private UserService userService;
+    private final UserService userService;
 
     @Autowired
-    UserController(UserService userService) {
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 
     @PostMapping
-    public User create(@RequestBody User user) {
+    public User create(@RequestBody @Valid User user) {
         log.info("Получен POST запрос к эндпоинту: '/users', Строка параметров запроса: " + user.toString());
         return userService.createUser(user);
     }
 
     @PutMapping
-    public User update(@RequestBody User user) {
+    public User update(@Valid @RequestBody User user) {
         log.info("Получен PUT запрос к эндпоинту: '/users', Строка параметров запроса: " + user.toString());
         return userService.updateUser(user);
     }
@@ -39,6 +43,12 @@ public class UserController {
     @GetMapping
     public List<User> get() {
         return userService.getUsers();
+    }
+
+    @DeleteMapping(value="/{id}")  // для CRUD
+    public void delete(@PathVariable("id") Long id) {
+        log.info("Получен DELETE запрос к эндпоинту: '/users', Строка параметров запроса: id=" + id);
+        userService.deleteUser(id);
     }
 
     @GetMapping(value = "/{id}")

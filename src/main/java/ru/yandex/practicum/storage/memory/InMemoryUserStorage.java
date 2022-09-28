@@ -1,10 +1,11 @@
-package ru.yandex.practicum.storage;
+package ru.yandex.practicum.storage.memory;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.exception.ValidationException;
 import ru.yandex.practicum.model.User;
-import java.time.LocalDate;
+import ru.yandex.practicum.storage.UserStorage;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +17,7 @@ public class InMemoryUserStorage implements UserStorage {
     static private long userId;
     private Map<Long, User> userStorage = new HashMap<>();
 
+    @Override
     public User createUser(User user) {
         validation(user);
         long id = generateUserId();
@@ -24,10 +26,7 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
-    public void delete(Long id) {
-        userStorage.remove(id);
-    }
-
+    @Override
     public User updateUser(User user) {
         if(user.getId() <= 0 || !userStorage.containsKey(user.getId())) {
             throw new ValidationException(HttpStatus.NOT_FOUND, "Такого пользовалеоя нет или id не передан.");
@@ -37,6 +36,7 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
+    @Override
     public User getUserById(Long id) {
         if(userStorage.isEmpty()) {
             throw new ValidationException(HttpStatus.NOT_FOUND, "Такого пользовалеоя нет или id передан неверно");
@@ -47,27 +47,36 @@ public class InMemoryUserStorage implements UserStorage {
         return userStorage.get(id);
     }
 
+    @Override
+    public void addFriend(long id, long friendId) {
+
+    }
+
+    @Override
+    public List<User> mutualFriends(long id, long friendId) {
+        return null;
+    }
+
+    @Override
+    public List<User> friendList(long id) {
+        return null;
+    }
+
+    @Override
+    public void deleteFriend(long id, long friendId) {
+
+    }
+
     private void validation(User user) {
         if(user.getName() == null || user.getName().equals("")) {
             user.setName(user.getLogin());
-        }
-        if(user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошибка валидации: дата рождения в будущем");
-        }
-        if(user.getEmail().isEmpty()) {
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошибка валидации: нужно заполнить e-mail");
-        }
-        if(!user.getEmail().contains("@")) {
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошибка валидации: e-mail введен неправильно");
-        }
-        if(user.getLogin().isEmpty()) {
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошибка валидации: нужно заполнить логин");
         }
         if(user.getLogin().contains(" ")) {
             throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошибка валидации: в логине нельзя использовать пробелы");
         }
     }
 
+    @Override
     public List<User> getUsers() {
         List<User> userList = new ArrayList<>();
         for(User user: userStorage.values()) {
@@ -76,6 +85,12 @@ public class InMemoryUserStorage implements UserStorage {
         return userList;
     }
 
+    @Override
+    public void deleteUser(Long id) {
+
+    }
+
+    @Override
     public Map<Long, User> getUserStorage() {
         return userStorage;
     }
